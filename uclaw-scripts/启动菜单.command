@@ -205,7 +205,7 @@ do_run() {
         echo "  启动后会自动打开浏览器控制台。"
         echo "  此窗口不要关闭，关闭后服务会停止。"
         echo ""
-        "$NODE_BIN" openclaw.mjs gateway run
+        "$NODE_BIN" openclaw.mjs gateway run --allow-unconfigured --force
     fi
 }
 
@@ -221,7 +221,7 @@ do_dashboard() {
     fi
     echo "  此窗口不要关闭，关闭后服务会停止。"
     echo ""
-    "$NODE_BIN" openclaw.mjs gateway run
+    "$NODE_BIN" openclaw.mjs gateway run --allow-unconfigured --force
 }
 
 # [5] 配置国产模型
