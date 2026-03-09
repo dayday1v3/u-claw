@@ -21,10 +21,11 @@ U 盘里有什么?
 ═══════════════
 U-Claw/
 ├── 运行.command        <- Mac 用户双击这个
+├── 运行.sh             <- Linux 用户运行: bash ./运行.sh
 ├── 运行.bat            <- Windows 用户双击这个
 ├── 安装到电脑.command   <- Mac 永久安装
 ├── 安装到电脑.bat       <- Windows 永久安装
-├── runtime/            <- Node.js 运行环境 (Mac/Win)
+├── runtime/            <- Node.js 运行环境 (Mac/Linux/Win)
 ├── openclaw/           <- OpenClaw 源码 + 依赖
 ├── memory/             <- AI 记忆文件
 ├── persona/            <- AI 人格配置
@@ -50,6 +51,12 @@ U-Claw/
     3. 双击 "运行.bat"
     4. 等待启动完成
 
+  Linux 用户:
+    1. 插入 U 盘
+    2. 打开 U-Claw 文件夹
+    3. 运行: chmod +x 运行.sh && ./运行.sh
+    4. 等待启动完成
+
   首次运行可能需要几分钟安装依赖（已预打包，无需联网）
 
 
@@ -65,12 +72,17 @@ U-Claw/
     2. 按提示操作
     3. 安装后在命令提示符输入 openclaw 即可使用
 
+  Linux 用户:
+    暂不提供一键安装到系统。
+    直接运行 `bash ./运行.sh` 即可使用。
+
   安装位置: ~/.uclaw/ (Mac) 或 %USERPROFILE%\.uclaw\ (Win)
 
 
 系统要求
 ═══════════════
 - macOS 12+ (Intel 或 Apple Silicon)
+- Linux x64 (glibc 环境，bash)
 - Windows 10/11 (64位)
 - 内存: 2GB 以上（推荐 4GB+）
 - 磁盘: 2GB 可用空间

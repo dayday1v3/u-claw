@@ -28,7 +28,7 @@
 
 ## Features / 特性
 
-- 🚀 **One-click install / 一键安装** — macOS + Windows, double-click to start
+- 🚀 **Easy startup / 快速启动** — macOS + Linux + Windows, ready to run from USB
 - 📦 **Fully offline / 完全离线** — No internet needed for installation
 - 🇨🇳 **China-optimized / 中国优化** — 8 Chinese AI models (DeepSeek, Kimi, Qwen, GLM, MiniMax, Doubao, Qianfan, Mimo)
 - 💬 **Multi-platform / 多平台** — QQ (official) / Feishu / WeChat / Telegram / Discord / WhatsApp / Slack
@@ -46,6 +46,7 @@
 
 # After extracting / 解压后：
 # Mac: double-click "启动菜单.command"
+# Linux: bash ./运行.sh
 # Win: double-click "启动菜单.bat"
 ```
 
@@ -84,7 +85,7 @@ Just copy the `U-Claw/` folder. That's it.
 U-Claw/                            (~1.3GB, 8GB USB minimum)
 │
 ├── 启动菜单.command / .bat         ← Launcher menu (YuLinMuFeng style)
-├── 运行.command / .bat             ← Quick start (skip menu)
+├── 运行.command / .sh / .bat       ← Quick start (skip menu)
 ├── 安装到电脑.command / .bat       ← Install to computer (permanent)
 ├── 使用说明.txt                    ← Basic instructions
 ├── 中国用户指南.txt                 ← China quick-start guide
@@ -93,6 +94,7 @@ U-Claw/                            (~1.3GB, 8GB USB minimum)
 ├── runtime/                        ← Node.js 22 runtimes
 │   ├── node-mac-arm64/             ← Mac Apple Silicon (M1-M4)
 │   ├── node-mac-x64/               ← Mac Intel
+│   ├── node-linux-x64/             ← Linux x64
 │   └── node-win-x64/               ← Windows 64-bit
 │
 ├── openclaw/                       ← OpenClaw + node_modules + dist
@@ -188,6 +190,7 @@ openclaw config set channels.qqbot.allowFrom "your_qq_number"
 ## System Requirements / 系统要求
 
 - **macOS**: 12+ (Intel or Apple Silicon)
+- **Linux**: x64 with glibc and bash
 - **Windows**: 10/11 (64-bit)
 - **RAM**: 2GB+ (4GB+ recommended)
 - **USB**: 8GB+ (16GB recommended)
@@ -202,10 +205,10 @@ openclaw config set channels.qqbot.allowFrom "your_qq_number"
 
 ### What the build script does / 构建脚本做了什么
 
-1. Downloads Node.js 22 for 3 platforms (Mac ARM64 + Mac x64 + Win x64), prefers China mirror
+1. Downloads Node.js 22 for 4 platforms (Mac ARM64 + Mac x64 + Linux x64 + Win x64), prefers China mirror
 2. Copies OpenClaw source to `U-Claw/openclaw/`
-3. Runs `npm install` with China mirror (registry.npmmirror.com)
-4. Runs `npm run build` to build OpenClaw
+3. Installs `pnpm` and runs `pnpm install` with China mirror (registry.npmmirror.com)
+4. Runs `pnpm build` to build OpenClaw
 5. Copies launcher scripts and docs
 6. Output: ~1.3GB ready to copy to USB
 
@@ -260,6 +263,10 @@ A: Yes, unlimited. MIT license, copy freely.
 **Q: Windows needs WSL? / Windows 需要 WSL 吗？**
 A: No. U-Claw bundles Windows Node.js, runs natively via `.bat`.
 不需要。自带 Windows 版 Node.js。
+
+**Q: Linux supported? / Linux 支持吗？**
+A: Yes for x64 Linux. Use `bash ./运行.sh` from the release bundle.
+支持，面向 x64 Linux。解压后运行 `bash ./运行.sh` 即可。
 
 ## License
 

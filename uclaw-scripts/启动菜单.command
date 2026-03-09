@@ -29,7 +29,22 @@ else
 fi
 NODE_BIN="$NODE_DIR/bin/node"
 NPM_BIN="$NODE_DIR/bin/npm"
+PNPM_BIN="$NODE_DIR/bin/pnpm"
 export PATH="$NODE_DIR/bin:$PATH"
+
+ensure_pnpm() {
+    if [ -x "$PNPM_BIN" ]; then
+        return 0
+    fi
+
+    echo -e "  ${YELLOW}缺少 pnpm，正在补充安装...${NC}"
+    "$NPM_BIN" install -g pnpm --registry=https://registry.npmmirror.com 2>&1
+
+    if [ ! -x "$PNPM_BIN" ]; then
+        echo -e "  ${RED}错误: pnpm 安装失败，无法继续构建${NC}"
+        return 1
+    fi
+}
 
 # 检查安装状态
 check_status() {
@@ -122,7 +137,10 @@ ensure_deps() {
     if [ ! -d "$OPENCLAW_DIR/dist" ]; then
         echo -e "  ${YELLOW}正在构建...${NC}"
         cd "$OPENCLAW_DIR"
-        "$NODE_BIN" "$NPM_BIN" run build 2>&1
+        if ! ensure_pnpm; then
+            return 1
+        fi
+        "$PNPM_BIN" run build 2>&1
         if [ ! -d "$OPENCLAW_DIR/dist" ]; then
             echo -e "  ${RED}构建失败！请检查上方错误信息${NC}"
             return 1
@@ -158,7 +176,14 @@ do_build() {
     echo ""
     ensure_deps
     cd "$OPENCLAW_DIR"
-    "$NODE_BIN" "$NPM_BIN" run build 2>&1
+    if ! ensure_pnpm; then
+        return 1
+    fi
+    "$PNPM_BIN" run build 2>&1
+    if [ ! -d "$OPENCLAW_DIR/dist" ]; then
+        echo -e "  ${RED}构建失败！请检查上方错误信息${NC}"
+        return 1
+    fi
     echo ""
     echo -e "  ${GREEN}构建完成!${NC}"
 }

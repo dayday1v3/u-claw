@@ -8,7 +8,21 @@ set "OPENCLAW_DIR=%UCLAW_DIR%openclaw"
 set "NODE_DIR=%UCLAW_DIR%runtime\node-win-x64"
 set "NODE_BIN=%NODE_DIR%\node.exe"
 set "NPM_BIN=%NODE_DIR%\npm.cmd"
+set "PNPM_BIN=%NODE_DIR%\pnpm.cmd"
 set "PATH=%NODE_DIR%;%PATH%"
+
+goto MENU
+
+:ENSURE_PNPM
+if exist "%PNPM_BIN%" goto :eof
+echo   缺少 pnpm，正在补充安装...
+call "%NPM_BIN%" install -g pnpm --registry=https://registry.npmmirror.com
+if not exist "%PNPM_BIN%" (
+    echo   [错误] pnpm 安装失败，无法继续构建
+    pause
+    goto MENU
+)
+goto :eof
 
 :MENU
 cls
@@ -118,7 +132,13 @@ if not exist "%OPENCLAW_DIR%\node_modules" (
     call "%NPM_BIN%" install --registry=https://registry.npmmirror.com
 )
 cd /d "%OPENCLAW_DIR%"
-call "%NPM_BIN%" run build
+call :ENSURE_PNPM
+call "%PNPM_BIN%" run build
+if not exist "%OPENCLAW_DIR%\dist" (
+    echo   [错误] 构建失败，请检查上方错误信息
+    pause
+    goto MENU
+)
 echo.
 echo   构建完成!
 pause
@@ -136,17 +156,24 @@ if not exist "%OPENCLAW_DIR%\node_modules" (
 if not exist "%OPENCLAW_DIR%\dist" (
     echo   先构建...
     cd /d "%OPENCLAW_DIR%"
-    call "%NPM_BIN%" run build 2>nul
+    call :ENSURE_PNPM
+    call "%PNPM_BIN%" run build
+    if not exist "%OPENCLAW_DIR%\dist" (
+        echo   [错误] 构建失败，请检查上方错误信息
+        pause
+        goto MENU
+    )
 )
 cd /d "%OPENCLAW_DIR%"
 REM 首次运行走 onboard，之后直接启动
 if not exist "%USERPROFILE%\.openclaw\openclaw.json" (
     echo   首次配置...
     "%NODE_BIN%" openclaw.mjs onboard --install-daemon
+    if errorlevel 1 goto MENU
 )
 echo.
 echo   启动 OpenClaw 服务...
-"%NODE_BIN%" openclaw.mjs 2>nul || call "%NPM_BIN%" start
+"%NODE_BIN%" openclaw.mjs || call "%NPM_BIN%" start
 pause
 goto MENU
 

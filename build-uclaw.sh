@@ -33,7 +33,7 @@ echo ""
 # ---- 1. 创建 U-Claw 目录结构 ----
 info "创建 U-Claw 目录结构..."
 rm -rf "$UCLAW_DIR"
-mkdir -p "$UCLAW_DIR"/{runtime/{node-mac-arm64,node-mac-x64,node-win-x64},openclaw,memory,persona,skills,tools}
+mkdir -p "$UCLAW_DIR"/{runtime/{node-mac-arm64,node-mac-x64,node-linux-x64,node-win-x64},openclaw,memory,persona,skills,tools}
 
 # ---- 2. 下载 Node.js 各平台版本 ----
 DOWNLOAD_DIR="$SCRIPT_DIR/.download-cache"
@@ -76,9 +76,10 @@ download_node() {
     ok "Node.js ${PLATFORM}-${ARCH} 就绪"
 }
 
-# 下载三个平台的 Node.js
+# 下载四个平台的 Node.js
 download_node "darwin" "arm64" "tar.gz" "node-mac-arm64"    # Mac Apple Silicon
 download_node "darwin" "x64"   "tar.gz" "node-mac-x64"      # Mac Intel
+download_node "linux"  "x64"   "tar.gz" "node-linux-x64"    # Linux x64
 download_node "win"    "x64"   "zip"    "node-win-x64"      # Windows x64
 
 # ---- 3. 复制 OpenClaw 源码 ----
@@ -139,6 +140,7 @@ if [ -d "$SCRIPTS_SRC" ]; then
     cp "$SCRIPTS_SRC/启动菜单.command" "$UCLAW_DIR/" 2>/dev/null || true
     cp "$SCRIPTS_SRC/启动菜单.bat" "$UCLAW_DIR/" 2>/dev/null || true
     cp "$SCRIPTS_SRC/运行.command" "$UCLAW_DIR/" 2>/dev/null || true
+    cp "$SCRIPTS_SRC/运行.sh" "$UCLAW_DIR/" 2>/dev/null || true
     cp "$SCRIPTS_SRC/运行.bat" "$UCLAW_DIR/" 2>/dev/null || true
     cp "$SCRIPTS_SRC/安装到电脑.command" "$UCLAW_DIR/" 2>/dev/null || true
     cp "$SCRIPTS_SRC/安装到电脑.bat" "$UCLAW_DIR/" 2>/dev/null || true
@@ -150,7 +152,7 @@ if [ -d "$SCRIPTS_SRC" ]; then
     # 复制二维码
     cp "$SCRIPT_DIR/微信二维码.jpg" "$UCLAW_DIR/" 2>/dev/null || true
     cp "$SCRIPT_DIR/小红书二维码.jpg" "$UCLAW_DIR/" 2>/dev/null || true
-    chmod +x "$UCLAW_DIR/启动菜单.command" "$UCLAW_DIR/运行.command" "$UCLAW_DIR/安装到电脑.command" 2>/dev/null || true
+    chmod +x "$UCLAW_DIR/启动菜单.command" "$UCLAW_DIR/运行.command" "$UCLAW_DIR/运行.sh" "$UCLAW_DIR/安装到电脑.command" 2>/dev/null || true
     ok "用户脚本已复制（含启动菜单、中国用户指南、微信二维码）"
 else
     warn "找不到 uclaw-scripts/ 目录，请手动复制脚本到 U-Claw/"
@@ -166,6 +168,7 @@ echo "  总大小: $TOTAL_SIZE"
 echo ""
 du -sh "$UCLAW_DIR"/runtime/node-mac-arm64 2>/dev/null | awk '{print "  Node.js Mac ARM64:  "$1}'
 du -sh "$UCLAW_DIR"/runtime/node-mac-x64 2>/dev/null | awk '{print "  Node.js Mac x64:    "$1}'
+du -sh "$UCLAW_DIR"/runtime/node-linux-x64 2>/dev/null | awk '{print "  Node.js Linux x64:  "$1}'
 du -sh "$UCLAW_DIR"/runtime/node-win-x64 2>/dev/null | awk '{print "  Node.js Win x64:    "$1}'
 du -sh "$UCLAW_DIR"/openclaw 2>/dev/null | awk '{print "  OpenClaw + 依赖:    "$1}'
 echo ""

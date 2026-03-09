@@ -1,9 +1,5 @@
-# U-Claw build outputs (too large for git)
-U-Claw/runtime/
-U-Claw/openclaw/node_modules/
-U-Claw/openclaw/dist/
-U-Claw/openclaw/.git/
-U-Claw/backups/
+# U-Claw build output bundle (generated release artifact)
+U-Claw/
 
 # OpenClaw source (users download separately)
 openclaw-2026.3.7/
