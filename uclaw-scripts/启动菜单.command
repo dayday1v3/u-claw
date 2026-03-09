@@ -240,124 +240,168 @@ do_dashboard() {
     start_gateway
 }
 
+# 运行 openclaw 命令（便携模式）
+run_openclaw() {
+    cd "$OPENCLAW_DIR"
+    "$NODE_BIN" openclaw.mjs "$@"
+}
+
+# 写入模型配置到 models.json 和 auth-profiles.json
+write_model_config() {
+    local PROVIDER_ID="$1"
+    local PROVIDER_NAME="$2"
+    local BASE_URL="$3"
+    local API_KEY="$4"
+    local MODEL_ID="$5"
+    local MODEL_NAME="$6"
+    local CONTEXT_WINDOW="${7:-128000}"
+
+    local AGENT_DIR="$PORTABLE_STATE_DIR/agents/main/agent"
+    mkdir -p "$AGENT_DIR"
+
+    # 写 auth-profiles.json
+    cat > "$AGENT_DIR/auth-profiles.json" << AUTHEOF
+{
+  "version": 1,
+  "profiles": {
+    "${PROVIDER_ID}:default": {
+      "type": "api_key",
+      "provider": "${PROVIDER_ID}",
+      "key": "${API_KEY}"
+    }
+  }
+}
+AUTHEOF
+
+    # 写 models.json
+    cat > "$AGENT_DIR/models.json" << MODELEOF
+{
+  "providers": {
+    "${PROVIDER_ID}": {
+      "baseUrl": "${BASE_URL}",
+      "api": "openai-completions",
+      "models": [
+        {
+          "id": "${MODEL_ID}",
+          "name": "${MODEL_NAME}",
+          "reasoning": false,
+          "input": ["text"],
+          "contextWindow": ${CONTEXT_WINDOW},
+          "maxTokens": 8192
+        }
+      ],
+      "apiKey": "${API_KEY}"
+    }
+  }
+}
+MODELEOF
+
+    # 设置为默认模型
+    run_openclaw config set agents.defaults.model "${MODEL_ID}" 2>/dev/null
+
+    echo ""
+    echo -e "  ${GREEN}${MODEL_NAME} 已配置完成！${NC}"
+    echo -e "  ${GREEN}模型: ${MODEL_ID}${NC}"
+    echo -e "  ${GREEN}接口: ${BASE_URL}${NC}"
+    echo ""
+    echo -e "  ${YELLOW}配置已保存到 U 盘。重启网关后生效（主菜单选 [4] 或 [17]）${NC}"
+}
+
 # [5] 配置国产模型
 do_china_models() {
     echo ""
     echo -e "  ${CYAN}${BOLD}━━━ 配置国产 AI 模型 ━━━${NC}"
     echo ""
-    echo -e "  OpenClaw 已内置以下国产模型支持:"
+    echo -e "  ${RED}★ 推荐先注册一个，其他以后再加${NC}"
     echo ""
-    echo -e "  ${GREEN}[a]${NC} DeepSeek（深度求索）    — 性价比最高，推荐首选"
+    echo -e "  ${GREEN}[a]${NC} DeepSeek（深度求索）${RED} ★推荐${NC} — 便宜好用，编程最强"
     echo -e "  ${GREEN}[b]${NC} Kimi / 月之暗面         — 256K 超长上下文"
     echo -e "  ${GREEN}[c]${NC} 通义千问 Qwen           — 阿里云，免费额度大"
     echo -e "  ${GREEN}[d]${NC} 智谱 GLM                — 清华系，学术场景强"
     echo -e "  ${GREEN}[e]${NC} MiniMax                  — 语音和多模态"
     echo -e "  ${GREEN}[f]${NC} 豆包 Doubao（字节跳动）  — 火山引擎平台"
-    echo -e "  ${GREEN}[g]${NC} 百度千帆                  — 百度智能云"
-    echo -e "  ${GREEN}[h]${NC} 小米 Mimo                — 小米 AI"
     echo ""
-    echo -e "  ${YELLOW}请选择要配置的模型 (a-h):${NC} "
+    echo -e "  ${DIM}[o] 用 OpenClaw 自带的配置向导（英文，更多选项）${NC}"
+    echo ""
+    echo -e "  ${YELLOW}请选择 (a-f / o):${NC} "
     read -n 1 MODEL_CHOICE
     echo ""
     echo ""
 
-    ENV_FILE="$OPENCLAW_DIR/.env"
-    touch "$ENV_FILE"
+    ensure_deps
 
     case $MODEL_CHOICE in
         a)
             echo -e "  ${CYAN}配置 DeepSeek${NC}"
-            echo "  获取 API Key: https://platform.deepseek.com/"
+            echo "  注册获取 API Key: https://platform.deepseek.com/"
             echo ""
             read -p "  请输入 DeepSeek API Key: " API_KEY
             if [ -n "$API_KEY" ]; then
-                grep -v "OPENAI_API_KEY\|OPENAI_BASE_URL" "$ENV_FILE" > "$ENV_FILE.tmp" 2>/dev/null || true
-                mv "$ENV_FILE.tmp" "$ENV_FILE"
-                echo "OPENAI_API_KEY=$API_KEY" >> "$ENV_FILE"
-                echo "OPENAI_BASE_URL=https://api.deepseek.com/v1" >> "$ENV_FILE"
-                echo -e "  ${GREEN}DeepSeek 已配置!${NC}"
+                write_model_config "deepseek" "DeepSeek" \
+                    "https://api.deepseek.com/v1" "$API_KEY" \
+                    "deepseek-chat" "DeepSeek V3" "128000"
             fi
             ;;
         b)
             echo -e "  ${CYAN}配置 Kimi (月之暗面)${NC}"
-            echo "  获取 API Key: https://platform.moonshot.cn/"
+            echo "  注册获取 API Key: https://platform.moonshot.cn/"
             echo ""
             read -p "  请输入 Moonshot API Key: " API_KEY
             if [ -n "$API_KEY" ]; then
-                grep -v "OPENAI_API_KEY\|OPENAI_BASE_URL" "$ENV_FILE" > "$ENV_FILE.tmp" 2>/dev/null || true
-                mv "$ENV_FILE.tmp" "$ENV_FILE"
-                echo "OPENAI_API_KEY=$API_KEY" >> "$ENV_FILE"
-                echo "OPENAI_BASE_URL=https://api.moonshot.cn/v1" >> "$ENV_FILE"
-                echo -e "  ${GREEN}Kimi 已配置!${NC}"
+                write_model_config "moonshot" "Moonshot" \
+                    "https://api.moonshot.cn/v1" "$API_KEY" \
+                    "kimi-k2.5" "Kimi K2.5" "256000"
             fi
             ;;
         c)
             echo -e "  ${CYAN}配置通义千问 Qwen${NC}"
-            echo "  获取 API Key: https://dashscope.console.aliyun.com/"
+            echo "  注册获取 API Key: https://dashscope.console.aliyun.com/"
             echo ""
             read -p "  请输入 Qwen API Key: " API_KEY
             if [ -n "$API_KEY" ]; then
-                grep -v "ZAI_API_KEY" "$ENV_FILE" > "$ENV_FILE.tmp" 2>/dev/null || true
-                mv "$ENV_FILE.tmp" "$ENV_FILE"
-                echo "ZAI_API_KEY=$API_KEY" >> "$ENV_FILE"
-                echo -e "  ${GREEN}通义千问已配置!${NC}"
+                write_model_config "qwen" "Qwen" \
+                    "https://dashscope.aliyuncs.com/compatible-mode/v1" "$API_KEY" \
+                    "qwen-max" "Qwen Max" "128000"
             fi
             ;;
         d)
             echo -e "  ${CYAN}配置智谱 GLM${NC}"
-            echo "  获取 API Key: https://open.bigmodel.cn/"
-            echo "  注意: 通过火山引擎(Volcano Engine)接入"
+            echo "  注册获取 API Key: https://open.bigmodel.cn/"
             echo ""
-            read -p "  请输入 API Key: " API_KEY
+            read -p "  请输入智谱 API Key: " API_KEY
             if [ -n "$API_KEY" ]; then
-                echo "# 智谱GLM (via Volcano Engine)" >> "$ENV_FILE"
-                echo "VOLCENGINE_API_KEY=$API_KEY" >> "$ENV_FILE"
-                echo -e "  ${GREEN}智谱 GLM 已配置!${NC}"
+                write_model_config "zhipu" "Zhipu" \
+                    "https://open.bigmodel.cn/api/paas/v4" "$API_KEY" \
+                    "glm-4-plus" "GLM-4 Plus" "128000"
             fi
             ;;
         e)
             echo -e "  ${CYAN}配置 MiniMax${NC}"
-            echo "  获取 API Key: https://platform.minimaxi.com/"
+            echo "  注册获取 API Key: https://platform.minimaxi.com/"
             echo ""
             read -p "  请输入 MiniMax API Key: " API_KEY
             if [ -n "$API_KEY" ]; then
-                grep -v "MINIMAX_API_KEY" "$ENV_FILE" > "$ENV_FILE.tmp" 2>/dev/null || true
-                mv "$ENV_FILE.tmp" "$ENV_FILE"
-                echo "MINIMAX_API_KEY=$API_KEY" >> "$ENV_FILE"
-                echo -e "  ${GREEN}MiniMax 已配置!${NC}"
+                write_model_config "minimax" "MiniMax" \
+                    "https://api.minimax.chat/v1" "$API_KEY" \
+                    "MiniMax-Text-01" "MiniMax Text 01" "128000"
             fi
             ;;
         f)
             echo -e "  ${CYAN}配置豆包 Doubao (字节跳动)${NC}"
-            echo "  获取 API Key: https://console.volcengine.com/ark"
+            echo "  注册获取 API Key: https://console.volcengine.com/ark"
             echo ""
             read -p "  请输入火山引擎 API Key: " API_KEY
             if [ -n "$API_KEY" ]; then
-                grep -v "VOLCENGINE_API_KEY" "$ENV_FILE" > "$ENV_FILE.tmp" 2>/dev/null || true
-                mv "$ENV_FILE.tmp" "$ENV_FILE"
-                echo "VOLCENGINE_API_KEY=$API_KEY" >> "$ENV_FILE"
-                echo -e "  ${GREEN}豆包已配置!${NC}"
+                write_model_config "volcengine" "Volcano Engine" \
+                    "https://ark.cn-beijing.volces.com/api/v3" "$API_KEY" \
+                    "doubao-pro-256k" "Doubao Pro" "256000"
             fi
             ;;
-        g)
-            echo -e "  ${CYAN}配置百度千帆${NC}"
-            echo "  获取 API Key: https://console.bce.baidu.com/qianfan/"
+        o)
+            echo -e "  ${CYAN}启动 OpenClaw 配置向导...${NC}"
             echo ""
-            read -p "  请输入千帆 API Key: " API_KEY
-            if [ -n "$API_KEY" ]; then
-                echo "QIANFAN_API_KEY=$API_KEY" >> "$ENV_FILE"
-                echo -e "  ${GREEN}百度千帆已配置!${NC}"
-            fi
-            ;;
-        h)
-            echo -e "  ${CYAN}配置小米 Mimo${NC}"
-            echo "  获取 API Key: https://dev.mi.com/mimo"
-            echo ""
-            read -p "  请输入 Mimo API Key: " API_KEY
-            if [ -n "$API_KEY" ]; then
-                echo "MIMO_API_KEY=$API_KEY" >> "$ENV_FILE"
-                echo -e "  ${GREEN}小米 Mimo 已配置!${NC}"
-            fi
+            cd "$OPENCLAW_DIR"
+            run_openclaw onboard
             ;;
         *)
             echo -e "  ${YELLOW}无效选择${NC}"
