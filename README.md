@@ -68,6 +68,10 @@ chmod +x build-uclaw.sh
 # 把 U-Claw/ 文件夹复制到 U 盘
 ```
 
+Note: `U-Claw/` is a generated release bundle. Keep the scripts/docs in git, and publish the built `U-Claw/` directory through GitHub Releases instead of committing it to the repository history.
+
+说明：`U-Claw/` 是构建产物。建议把脚本和文档提交到 git，把生成好的 `U-Claw/` 目录通过 GitHub Releases 发布，而不是直接提交到仓库历史。
+
 ### Option 3: Copy from a Friend / 复制别人的
 
 Just copy the `U-Claw/` folder. That's it.
@@ -269,10 +273,7 @@ A: No. U-Claw bundles Windows Node.js, runs natively via `.bat`.
 
   <img src="微信二维码.jpg" alt="WeChat QR" width="200">
 
-- **Xiaohongshu 小红书**: Follow / 关注
-
-  <img src="小红书二维码.jpg" alt="Xiaohongshu QR" width="200">
-
+- **Xiaohongshu 小红书**: [关注主页 / Follow](https://xhslink.com/m/6mf7Mq2M5wP)
 - **Email 邮箱**: hefangsheng@gmail.com
 - **GitHub**: [@dongsheng123132](https://github.com/dongsheng123132)
 - **Website 官网**: [u-claw.org](https://u-claw.org)
