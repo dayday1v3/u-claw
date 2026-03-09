@@ -201,12 +201,30 @@ do_run() {
             echo "  接下来可以选 [17] 打开网页控制台。"
         fi
     else
-        echo -e "  ${GREEN}正在启动网关服务...${NC}"
-        echo "  启动后会自动打开浏览器控制台。"
-        echo "  此窗口不要关闭，关闭后服务会停止。"
-        echo ""
-        "$NODE_BIN" openclaw.mjs gateway run --allow-unconfigured --force
+        start_gateway
     fi
+}
+
+start_gateway() {
+    echo -e "  ${GREEN}正在启动网关服务...${NC}"
+    echo "  此窗口不要关闭，关闭后服务会停止。"
+    echo ""
+    cd "$OPENCLAW_DIR"
+    "$NODE_BIN" openclaw.mjs gateway run --allow-unconfigured --force &
+    local GW_PID=$!
+    for i in $(seq 1 30); do
+        sleep 0.5
+        if curl -s -o /dev/null http://127.0.0.1:18789/ 2>/dev/null; then
+            local TOKEN
+            TOKEN=$(python3 -c "import json; d=json.load(open('$PORTABLE_CONFIG_PATH')); print(d.get('gateway',{}).get('auth',{}).get('token',''))" 2>/dev/null)
+            local URL="http://127.0.0.1:18789/#token=${TOKEN}"
+            echo ""
+            echo -e "  ${GREEN}控制台地址: ${URL}${NC}"
+            open "$URL" 2>/dev/null
+            break
+        fi
+    done
+    wait $GW_PID
 }
 
 do_dashboard() {
@@ -219,9 +237,7 @@ do_dashboard() {
         echo -e "  ${YELLOW}你还没有完成 U 盘便携配置。请先选 [4] 从 U 盘运行。${NC}"
         return
     fi
-    echo "  此窗口不要关闭，关闭后服务会停止。"
-    echo ""
-    "$NODE_BIN" openclaw.mjs gateway run --allow-unconfigured --force
+    start_gateway
 }
 
 # [5] 配置国产模型

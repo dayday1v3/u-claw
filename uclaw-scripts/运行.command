@@ -133,10 +133,25 @@ if [ ! -f "$PORTABLE_CONFIG_PATH" ]; then
     fi
 else
     echo -e "  ${GREEN}正在启动网关服务...${NC}"
-    echo "  启动后会自动打开浏览器控制台。"
     echo "  此窗口不要关闭，关闭后服务会停止。"
     echo ""
-    "$NODE_BIN" openclaw.mjs gateway run --allow-unconfigured --force
+    # 后台启动网关，等它就绪后自动打开浏览器
+    "$NODE_BIN" openclaw.mjs gateway run --allow-unconfigured --force &
+    GW_PID=$!
+    # 等网关启动，最多等 15 秒
+    for i in $(seq 1 30); do
+        sleep 0.5
+        if curl -s -o /dev/null http://127.0.0.1:18789/ 2>/dev/null; then
+            TOKEN=$(python3 -c "import json; d=json.load(open('$PORTABLE_CONFIG_PATH')); print(d.get('gateway',{}).get('auth',{}).get('token',''))" 2>/dev/null)
+            URL="http://127.0.0.1:18789/#token=${TOKEN}"
+            echo ""
+            echo -e "  ${GREEN}控制台地址: ${URL}${NC}"
+            open "$URL" 2>/dev/null
+            break
+        fi
+    done
+    # 前台等待网关进程
+    wait $GW_PID
 fi
 
 echo ""
