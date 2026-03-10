@@ -1,8 +1,5 @@
 #!/bin/bash
-# ============================================================
-# U-Claw 虾盘 - macOS 一键安装并启动
-# 从 U 盘解压到电脑，然后启动 OpenClaw
-# ============================================================
+# U-Claw - Extract and Launch (macOS)
 
 GREEN='\033[0;32m'
 CYAN='\033[0;36m'
@@ -15,16 +12,16 @@ echo ""
 echo -e "${CYAN}"
 echo "  ╔══════════════════════════════════════╗"
 echo "  ║     U-Claw 虾盘 v1.1                ║"
-echo "  ║     一键安装并启动 (macOS)           ║"
+echo "  ║     一键解压并启动 (macOS)           ║"
 echo "  ╚══════════════════════════════════════╝"
 echo -e "${NC}"
 
-USB_DIR="$(cd "$(dirname "$0")" && pwd)"
-ARCHIVE="$USB_DIR/U-Claw.tar.gz"
-INSTALL_DIR="$HOME/U-Claw"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+ARCHIVE="$SCRIPT_DIR/U-Claw.tar.gz"
+INSTALL_DIR="$SCRIPT_DIR/U-Claw"
 
-# 移除 macOS 隔离标记（解决"无法验证开发者"弹窗）
-xattr -rd com.apple.quarantine "$USB_DIR" 2>/dev/null || true
+# 移除 macOS 隔离标记
+xattr -rd com.apple.quarantine "$SCRIPT_DIR" 2>/dev/null || true
 
 # 检查压缩包
 if [ ! -f "$ARCHIVE" ]; then
@@ -34,19 +31,19 @@ if [ ! -f "$ARCHIVE" ]; then
     exit 1
 fi
 
-# 检查是否已安装
+# 检查是否已解压
 if [ -d "$INSTALL_DIR/app/core/node_modules" ]; then
-    echo -e "  ${GREEN}检测到已安装的 U-Claw${NC}"
+    echo -e "  ${GREEN}检测到已解压的 U-Claw${NC}"
     echo "  位置: $INSTALL_DIR"
     echo ""
     echo -e "  ${YELLOW}[1] 直接启动（跳过解压）${NC}"
-    echo "  [2] 重新安装（覆盖现有）"
+    echo "  [2] 重新解压（覆盖现有）"
     echo ""
     read -p "  请选择 [1/2，默认1]: " choice
     choice="${choice:-1}"
     if [ "$choice" = "2" ]; then
         echo ""
-        echo -e "  ${YELLOW}正在重新安装...${NC}"
+        echo -e "  ${YELLOW}正在重新解压...${NC}"
         rm -rf "$INSTALL_DIR"
     else
         echo ""
@@ -57,12 +54,19 @@ fi
 # 解压（如果需要）
 if [ ! -d "$INSTALL_DIR/app/core/node_modules" ]; then
     echo ""
-    echo -e "  ${CYAN}正在解压 U-Claw 到 $INSTALL_DIR ...${NC}"
-    echo "  这可能需要 30-60 秒，请稍等..."
+    echo -e "  ${CYAN}正在解压 U-Claw ...${NC}"
+    echo "  解压到: $INSTALL_DIR"
     echo ""
 
-    mkdir -p "$HOME"
-    cd "$HOME"
+    # 检测是否在 U 盘上（挂载点判断）
+    if echo "$SCRIPT_DIR" | grep -q "/Volumes/"; then
+        echo -e "  ${YELLOW}检测到 U 盘，解压可能需要 3-5 分钟，请耐心等待...${NC}"
+    else
+        echo "  大约需要 1-2 分钟..."
+    fi
+    echo ""
+
+    cd "$SCRIPT_DIR"
     tar xzf "$ARCHIVE"
 
     if [ $? -ne 0 ]; then
@@ -71,14 +75,14 @@ if [ ! -d "$INSTALL_DIR/app/core/node_modules" ]; then
         exit 1
     fi
 
+    # 解压后移除隔离标记
+    xattr -rd com.apple.quarantine "$INSTALL_DIR" 2>/dev/null || true
+
     echo -e "  ${GREEN}解压完成！${NC}"
     echo ""
 fi
 
-# 删除 Windows 相关文件（可选，不影响运行）
-# rm -f "$INSTALL_DIR"/Windows-*.bat 2>/dev/null
-
-# 启动 OpenClaw
+# 启动
 echo -e "  ${CYAN}正在启动 OpenClaw...${NC}"
 echo ""
 

@@ -2,6 +2,9 @@
 U-Claw/
 U-Claw-v2/
 
+# Toolkit (engineer DIY package, local only)
+Toolkit/
+
 # Marketing assets
 marketing/
 marketing.zip

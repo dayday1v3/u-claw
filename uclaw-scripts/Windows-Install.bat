@@ -1,17 +1,17 @@
 ﻿@echo off
 chcp 65001 >/dev/null 2>&1
-title U-Claw - Install and Launch
+title U-Claw - Extract and Launch
 
 echo.
 echo   ========================================
 echo     U-Claw v1.1
-echo     Install and Launch (Windows)
+echo     Extract and Launch (Windows)
 echo   ========================================
 echo.
 
-set "USB_DIR=%~dp0"
-set "ARCHIVE=%USB_DIR%U-Claw.tar.gz"
-set "INSTALL_DIR=%USERPROFILE%\U-Claw"
+set "SCRIPT_DIR=%~dp0"
+set "ARCHIVE=%SCRIPT_DIR%U-Claw.tar.gz"
+set "INSTALL_DIR=%SCRIPT_DIR%U-Claw"
 
 REM Check archive
 if not exist "%ARCHIVE%" (
@@ -22,17 +22,17 @@ if not exist "%ARCHIVE%" (
     exit /b 1
 )
 
-REM Check if already installed
+REM Check if already extracted
 if exist "%INSTALL_DIR%\app\core\node_modules" (
-    echo   U-Claw already installed at: %INSTALL_DIR%
+    echo   U-Claw already extracted at: %INSTALL_DIR%
     echo.
     echo   [1] Launch directly (skip extract)
-    echo   [2] Reinstall (overwrite)
+    echo   [2] Re-extract (overwrite)
     echo.
     set /p choice="  Choose [1/2, default 1]: "
     if "%choice%"=="2" (
         echo.
-        echo   Reinstalling...
+        echo   Re-extracting...
         rmdir /s /q "%INSTALL_DIR%" >/dev/null 2>&1
     ) else (
         echo.
@@ -43,26 +43,22 @@ if exist "%INSTALL_DIR%\app\core\node_modules" (
 
 REM Extract
 echo.
-echo   Extracting U-Claw to %INSTALL_DIR% ...
-echo   This may take 1-2 minutes...
+echo   Extracting U-Claw to: %INSTALL_DIR%
+echo   This may take a few minutes...
 echo.
 
 where tar >/dev/null 2>&1
 if %errorlevel%==0 (
-    cd /d "%USERPROFILE%"
+    cd /d "%SCRIPT_DIR%"
     tar xzf "%ARCHIVE%"
     if %errorlevel% neq 0 (
         echo   Extract failed! Please extract U-Claw.tar.gz manually
-        echo   using 7-Zip or WinRAR to %USERPROFILE%
         pause
         exit /b 1
     )
 ) else (
-    echo   tar command not available on this Windows version
-    echo   Please extract U-Claw.tar.gz manually using 7-Zip or WinRAR
-    echo   Extract to: %USERPROFILE%
-    echo.
-    echo   Then run: %INSTALL_DIR%\Windows-Start.bat
+    echo   tar not available. Please extract U-Claw.tar.gz manually
+    echo   using 7-Zip or WinRAR to this directory.
     pause
     exit /b 1
 )
@@ -71,7 +67,6 @@ echo   Extract complete!
 echo.
 
 :start
-REM Launch OpenClaw
 echo   Starting OpenClaw...
 echo.
 
