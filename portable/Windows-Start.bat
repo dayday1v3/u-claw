@@ -84,17 +84,23 @@ if %errorlevel%==0 (
 echo   Starting OpenClaw on port %PORT%...
 echo   DO NOT close this window!
 echo.
-echo   ----------------------------------------
-echo   Browser will open automatically.
-echo   First time setup in web console:
-echo     1. Choose AI model (DeepSeek / Kimi / Qwen)
-echo     2. Enter API Key
-echo     3. Connect chat platform (QQ / Feishu / DingTalk)
-echo   ----------------------------------------
-echo.
 
 cd /d "%CORE_DIR%"
-start "" http://127.0.0.1:%PORT%/#token=uclaw
+
+REM Check if model is configured - open Config.html for first time, dashboard for returning users
+set "HAS_MODEL=no"
+if exist "%DATA_DIR%\config.json" (
+    findstr /c:"agent" "%DATA_DIR%\config.json" >nul 2>&1 && set "HAS_MODEL=yes"
+)
+
+if "%HAS_MODEL%"=="yes" (
+    echo   Opening dashboard...
+    start "" http://127.0.0.1:%PORT%/#token=uclaw
+) else (
+    echo   First time - opening Config page...
+    start "" "%UCLAW_DIR%Config.html?port=%PORT%"
+)
+
 "%NODE_BIN%" openclaw.mjs gateway run --allow-unconfigured --force --port %PORT%
 
 echo.
