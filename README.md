@@ -68,13 +68,14 @@ U-Claw/                          ← 整个拷到 U 盘
     └── backups/                     备份
 ```
 
-### Linux 可启动版（独立仓库）
+### Linux 可启动版
 
 连操作系统都没有？没关系。可启动版可以让任意电脑从 U 盘直接启动 Ubuntu + AI：
 
-> **独立仓库：[u-claw-linux](https://github.com/dongsheng123132/u-claw-linux)**
+- 本仓库内：[`bootable/`](bootable/) 目录（与其他模块完全独立，互不影响）
+- 独立仓库：[u-claw-linux](https://github.com/dongsheng123132/u-claw-linux)（内容一致，方便单独克隆）
 
-基于 Ventoy + Ubuntu 24.04 LTS + 持久化存储，4 步 PowerShell 脚本即可制作。详见独立仓库。
+基于 Ventoy + Ubuntu 24.04 LTS + 持久化存储，在 Windows 上运行 4 步 PowerShell 脚本即可制作。详见 [`bootable/README.md`](bootable/README.md)。
 
 ### 桌面安装版（Electron App）
 
@@ -139,7 +140,7 @@ bash Mac-Start.command   # Mac 测试
 | Mac Apple Silicon (M1-M4) | ✅ | 便携版 + 桌面版 |
 | Mac Intel (x64) | ✅ | 便携版 + 桌面版 |
 | Windows x64 | 🚧 开发中 | 便携版 + 桌面版 |
-| Linux x64（可启动 U 盘） | ✅ | [独立仓库](https://github.com/dongsheng123132/u-claw-linux) |
+| Linux x64（可启动 U 盘） | ✅ | [`bootable/`](bootable/) 目录 |
 
 欢迎 PR！特别需要：Windows 脚本完善、教程翻译。
 
@@ -224,13 +225,14 @@ U-Claw/                          ← Copy entire folder to USB
     └── backups/                     Backups
 ```
 
-### Linux Bootable USB (Separate Repo)
+### Linux Bootable USB
 
 No operating system? No problem. Boot any computer from USB into Ubuntu + AI:
 
-> **Separate repo: [u-claw-linux](https://github.com/dongsheng123132/u-claw-linux)**
+- In this repo: [`bootable/`](bootable/) directory (fully independent from other modules)
+- Standalone repo: [u-claw-linux](https://github.com/dongsheng123132/u-claw-linux) (same content, easier to clone separately)
 
-Based on Ventoy + Ubuntu 24.04 LTS + persistence. 4-step PowerShell scripts. See the separate repo for details.
+Based on Ventoy + Ubuntu 24.04 LTS + persistence. 4-step PowerShell scripts on Windows. See [`bootable/README.md`](bootable/README.md) for details.
 
 ### Desktop App (Electron)
 
@@ -293,7 +295,7 @@ bash Mac-Start.command   # Test on Mac
 | Mac Apple Silicon (M1-M4) | ✅ | Portable + Desktop |
 | Mac Intel (x64) | ✅ | Portable + Desktop |
 | Windows x64 | 🚧 In progress | Portable + Desktop |
-| Linux x64 (Bootable USB) | ✅ | [Separate repo](https://github.com/dongsheng123132/u-claw-linux) |
+| Linux x64 (Bootable USB) | ✅ | [`bootable/`](bootable/) directory |
 
 PRs welcome! Especially: Windows scripts, documentation.
 
