@@ -68,6 +68,14 @@ U-Claw/                          ← 整个拷到 U 盘
     └── backups/                     备份
 ```
 
+### Linux 可启动版（独立仓库）
+
+连操作系统都没有？没关系。可启动版可以让任意电脑从 U 盘直接启动 Ubuntu + AI：
+
+> **独立仓库：[u-claw-linux](https://github.com/dongsheng123132/u-claw-linux)**
+
+基于 Ventoy + Ubuntu 24.04 LTS + 持久化存储，4 步 PowerShell 脚本即可制作。详见独立仓库。
+
 ### 桌面安装版（Electron App）
 
 除了 U 盘便携版，还有桌面 App 版本：
@@ -126,11 +134,12 @@ bash Mac-Start.command   # Mac 测试
 
 **平台支持：**
 
-| 平台 | 状态 |
-|------|------|
-| Mac Apple Silicon (M1-M4) | ✅ |
-| Mac Intel (x64) | ✅ |
-| Windows x64 | 🚧 开发中 |
+| 平台 | 状态 | 说明 |
+|------|------|------|
+| Mac Apple Silicon (M1-M4) | ✅ | 便携版 + 桌面版 |
+| Mac Intel (x64) | ✅ | 便携版 + 桌面版 |
+| Windows x64 | 🚧 开发中 | 便携版 + 桌面版 |
+| Linux x64（可启动 U 盘） | ✅ | [独立仓库](https://github.com/dongsheng123132/u-claw-linux) |
 
 欢迎 PR！特别需要：Windows 脚本完善、教程翻译。
 
@@ -215,6 +224,14 @@ U-Claw/                          ← Copy entire folder to USB
     └── backups/                     Backups
 ```
 
+### Linux Bootable USB (Separate Repo)
+
+No operating system? No problem. Boot any computer from USB into Ubuntu + AI:
+
+> **Separate repo: [u-claw-linux](https://github.com/dongsheng123132/u-claw-linux)**
+
+Based on Ventoy + Ubuntu 24.04 LTS + persistence. 4-step PowerShell scripts. See the separate repo for details.
+
 ### Desktop App (Electron)
 
 ```bash
@@ -271,11 +288,12 @@ bash Mac-Start.command   # Test on Mac
 
 **Platform Support:**
 
-| Platform | Status |
-|----------|--------|
-| Mac Apple Silicon (M1-M4) | ✅ |
-| Mac Intel (x64) | ✅ |
-| Windows x64 | 🚧 In progress |
+| Platform | Status | Notes |
+|----------|--------|-------|
+| Mac Apple Silicon (M1-M4) | ✅ | Portable + Desktop |
+| Mac Intel (x64) | ✅ | Portable + Desktop |
+| Windows x64 | 🚧 In progress | Portable + Desktop |
+| Linux x64 (Bootable USB) | ✅ | [Separate repo](https://github.com/dongsheng123132/u-claw-linux) |
 
 PRs welcome! Especially: Windows scripts, documentation.
 

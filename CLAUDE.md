@@ -90,4 +90,4 @@ Release artifacts go to GitHub Releases, not the repo.
 - Mac Apple Silicon (ARM64): ✅ Working
 - Mac Intel (x64): ✅ Working（portable 需先运行 setup.sh 下载 node-mac-x64）
 - Windows x64: 🚧 In development
-- Linux: 不提供脚本，后续只提供教程
+- Linux (Bootable USB): ✅ Separate repo → [u-claw-linux](https://github.com/dongsheng123132/u-claw-linux)

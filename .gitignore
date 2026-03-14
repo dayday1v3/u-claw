@@ -32,3 +32,6 @@ Thumbs.db
 
 # ── u-claw-app runtime binaries (download on build) ──
 u-claw-app/resources/runtime/
+
+# ── Bootable USB (moved to separate repo: u-claw-linux) ──
+bootable/
