@@ -126,6 +126,9 @@ ul{padding-left:20px}
         <a class="nav-item" href="#" data-page="models-cn">国产模型（免翻墙）</a>
         <a class="nav-item" href="#" data-page="models-intl">国际模型</a>
         <a class="nav-item" href="#" data-page="deepseek">DeepSeek 配置</a>
+        <a class="nav-item" href="#" data-page="kimi">Kimi 配置</a>
+        <a class="nav-item" href="#" data-page="qwen">通义千问配置</a>
+        <a class="nav-item" href="#" data-page="openrouter">OpenRouter 统一网关</a>
       </div>
     </div>
 
@@ -154,6 +157,24 @@ ul{padding-left:20px}
         <a class="nav-item" href="#" data-page="env-vars">环境变量</a>
         <a class="nav-item" href="#" data-page="doctor">诊断修复</a>
         <a class="nav-item" href="#" data-page="maintain">维护与卸载</a>
+      </div>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-title" onclick="this.parentElement.classList.toggle('open')"><span class="arrow">▶</span> 📋 日常使用</div>
+      <div class="nav-group-items">
+        <a class="nav-item" href="#" data-page="cron">定时任务</a>
+        <a class="nav-item" href="#" data-page="multi-model">多模型与省钱</a>
+      </div>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-title" onclick="this.parentElement.classList.toggle('open')"><span class="arrow">▶</span> 🔒 进阶部署</div>
+      <div class="nav-group-items">
+        <a class="nav-item" href="#" data-page="vps">VPS 部署</a>
+        <a class="nav-item" href="#" data-page="security">安全加固</a>
+        <a class="nav-item" href="#" data-page="config-ref">配置文件参考</a>
+        <a class="nav-item" href="#" data-page="resources">社区资源</a>
       </div>
     </div>
 
@@ -473,6 +494,18 @@ git clone https://gitee.com/dongsheng123132/u-claw.git</code></pre>
 <tr><td>豆包</td><td>字节跳动</td><td>Volcano Engine</td><td>火山引擎</td></tr>
 <tr><td>MiniMax</td><td>MiniMax</td><td>MiniMax</td><td>语音、多模态</td></tr>
 </table>
+
+<h2>新手首次配置推荐</h2>
+<p>如果你是第一次配置 AI 模型，以下模型<strong>配置最简单</strong>，适合入门：</p>
+<table>
+<tr><th>模型</th><th>配置难度</th><th>说明</th></tr>
+<tr><td><strong>Kimi (月之暗面)</strong></td><td>最简单</td><td>注册即用，向导直接选择</td></tr>
+<tr><td><strong>智谱 GLM</strong></td><td>简单</td><td>免费额度，配置直观</td></tr>
+<tr><td><strong>通义千问 Qwen</strong></td><td>简单</td><td>阿里云生态，免费额度大</td></tr>
+<tr><td><strong>DeepSeek</strong></td><td>简单</td><td>需填 Custom Provider + Base URL</td></tr>
+<tr><td><strong>腾讯混元</strong></td><td>中等</td><td>腾讯云生态</td></tr>
+</table>
+<div class="danger"><strong>注意：</strong>不建议新手使用淘宝等渠道购买的第三方 API Key。这类 Key 来源不明，调试困难，容易出问题。请直接到各模型官网注册获取。</div>
 </div>
 
 <!-- ===== 国际模型 ===== -->
@@ -484,6 +517,18 @@ git clone https://gitee.com/dongsheng123132/u-claw.git</code></pre>
 <tr><td>GPT-4</td><td>OpenAI</td><td>兼容性广</td></tr>
 <tr><td>Gemini</td><td>Google</td><td>免费额度</td></tr>
 </table>
+
+<div class="warn">国际模型 API 需要翻墙或使用中转站。推荐使用 <a href="https://openrouter.ai" target="_blank">OpenRouter</a> 统一管理。</div>
+
+<h2>通过 OpenRouter（推荐）</h2>
+<p>OpenRouter 汇聚了主流 AI 模型，一个 API Key 用所有模型，部分有免费额度。</p>
+<div class="step"><div class="step-num">1</div><div class="step-content"><strong>注册 OpenRouter</strong><br>访问 <a href="https://openrouter.ai" target="_blank">openrouter.ai</a>，GitHub 登录。</div></div>
+<div class="step"><div class="step-num">2</div><div class="step-content"><strong>获取 API Key</strong><br>Keys → Create Key → 复制。</div></div>
+<div class="step"><div class="step-num">3</div><div class="step-content"><strong>配置</strong>
+<pre><code>openclaw onboard
+# 选择 OpenRouter
+# API Key: 粘贴
+# Model: 选择你要用的模型</code></pre></div></div>
 </div>
 
 <!-- ===== DeepSeek ===== -->
@@ -1160,6 +1205,7 @@ openclaw plugin uninstall &lt;插件名&gt;</code></pre>
 
 <strong>启用 SSH（可选，让其他电脑远程控制）</strong>
 <pre><code>sudo bash /media/*/Ventoy/u-claw-linux/enable-ssh.sh</code></pre>
+<p style="color:var(--dim)">如果 U 盘脚本找不到，也可以手动启用（见下方"远程控制"章节）</p>
 </div>
 
 <h2>首次启动 Ubuntu</h2>
@@ -1193,6 +1239,44 @@ sudo bash /media/*/Ventoy/u-claw-linux/format-persistence.sh</code></pre>
 <li>所有数据保存在持久化镜像中，重启不丢</li>
 <li>关机前正常关闭 Ubuntu（不要直接拔 U 盘）</li>
 </ul>
+
+<h2>远程控制（用另一台电脑管理 Linux）</h2>
+
+<div class="card">
+<p><strong>适用场景：</strong>你有一台 Mac / Windows / Linux 电脑（比如 Mac mini），想远程控制这台从 U 盘启动的 Linux 机器——安装 OpenClaw、改配置、调试问题，全程不用跑到 Linux 电脑面前操作。</p>
+</div>
+
+<h3>方法一：用 U 盘自带脚本（推荐）</h3>
+<p>如果 U 盘里有 <code>u-claw-linux/</code> 目录：</p>
+<pre><code>sudo bash /media/*/Ventoy/u-claw-linux/enable-ssh.sh</code></pre>
+<p style="color:var(--dim)">脚本会自动安装 SSH、让你设密码、显示 IP 地址。</p>
+
+<h3>方法二：手动启用 SSH（3 条命令）</h3>
+<p>如果脚本找不到，或者没有 U 盘，手动也很简单：</p>
+
+<div class="step"><div class="step-num">1</div><div class="step-content"><strong>安装并启动 SSH 服务</strong>
+<pre><code>sudo apt update && sudo apt install -y openssh-server && sudo systemctl start ssh</code></pre>
+<p style="color:var(--dim)">粘贴后回车，可能需要输入密码确认</p>
+</div></div>
+
+<div class="step"><div class="step-num">2</div><div class="step-content"><strong>设置登录密码</strong>
+<pre><code>sudo passwd $USER</code></pre>
+<p style="color:var(--dim)">输入两次新密码。如果 Ubuntu Live 用户名是 ubuntu，密码就是给 ubuntu 用户设的</p>
+</div></div>
+
+<div class="step"><div class="step-num">3</div><div class="step-content"><strong>查看 IP 地址</strong>
+<pre><code>hostname -I</code></pre>
+<p style="color:var(--dim)">会显示类似 <code>192.168.18.45</code> 的地址，记下来</p>
+</div></div>
+
+<h3>从另一台电脑连接</h3>
+<p>在 Mac / Windows / Linux 的终端输入：</p>
+<pre><code>ssh ubuntu@192.168.18.xx</code></pre>
+<p style="color:var(--dim)">把 <code>192.168.18.xx</code> 换成上一步显示的实际 IP，输入刚才设的密码即可连接。</p>
+
+<div class="tip"><strong>配合 Claude Code 使用：</strong>在 Mac mini 上打开 Claude Code，告诉它 <code>ssh ubuntu@192.168.18.xx 密码是 xxx</code>，Claude Code 就能通过 Bash 工具远程执行命令——安装 OpenClaw、改配置、调试，全程自动化。</div>
+
+<div class="tip"><strong>外网远程（不在同一 WiFi）：</strong>两台电脑都安装 <a href="https://tailscale.com" target="_blank">Tailscale</a>，用同一账号登录，即可通过 Tailscale IP（100.x.x.x）从任何地方连接，无需公网 IP。</div>
 
 <h2>常见问题</h2>
 
@@ -1307,6 +1391,32 @@ npm install -g openclaw@latest --registry=https://registry.npmmirror.com
 # 验证
 openclaw --version</code></pre>
 
+<h3>用 pnpm 安装（更快）</h3>
+<pre><code># 如果没有 pnpm，先安装
+npm install -g pnpm
+
+# 用 pnpm 安装 OpenClaw
+pnpm add -g openclaw@latest
+pnpm approve-builds -g
+openclaw onboard --install-daemon</code></pre>
+
+<h3>从源码构建（开发者）</h3>
+<pre><code>git clone https://github.com/openclaw/openclaw.git
+cd openclaw && pnpm install && pnpm ui:build && pnpm build
+pnpm link --global
+openclaw --version</code></pre>
+
+<h3>常见安装问题</h3>
+<div class="warn"><strong>sharp 构建失败？</strong>添加环境变量跳过本地编译：
+<pre><code>SHARP_IGNORE_GLOBAL_LIBVIPS=1 npm install -g openclaw@latest</code></pre></div>
+
+<div class="warn"><strong>找不到 openclaw 命令？</strong>PATH 未包含全局 bin 目录：
+<pre><code># 添加到 ~/.zshrc 或 ~/.bashrc
+export PATH="$(npm prefix -g)/bin:$PATH"
+source ~/.zshrc</code></pre></div>
+
+<div class="tip"><strong>Windows 用户建议：</strong>推荐使用 WSL2（Windows Subsystem for Linux）安装，兼容性最好。原生 Windows 可能遇到路径和权限问题。</div>
+
 <h2>第四步：配置国产 AI 模型</h2>
 <p>启动配置向导：</p>
 <pre><code># 启动引导向导 + 安装后台守护进程
@@ -1383,6 +1493,167 @@ fnm install 22 && fnm use 22</code></pre>
 </ul>
 
 <div class="tip"><strong>运行诊断：</strong><code>openclaw doctor --repair</code> 可以自动检测和修复常见问题。</div>
+</div>
+
+<!-- ===== Kimi 配置 ===== -->
+<div class="page" id="page-kimi">
+<h1>Kimi / 月之暗面 配置</h1>
+<div class="step"><div class="step-num">1</div><div class="step-content"><strong>注册</strong><br>访问 <a href="https://platform.moonshot.cn/" target="_blank">platform.moonshot.cn</a>，注册账号。</div></div>
+<div class="step"><div class="step-num">2</div><div class="step-content"><strong>获取 API Key</strong><br>控制台 → 开发者 → 创建密钥 → 复制保存。</div></div>
+<div class="step"><div class="step-num">3</div><div class="step-content"><strong>配置</strong>
+<pre><code>openclaw onboard
+# 选择 Moonshot AI
+# API Key: 粘贴你的 Key
+# Model: moonshot-v1-128k（或 moonshot-v1-8k）</code></pre>
+<p>或手动配置 Base URL：<code>https://api.moonshot.cn/v1</code></p>
+</div></div>
+</div>
+
+<!-- ===== 通义千问配置 ===== -->
+<div class="page" id="page-qwen">
+<h1>通义千问 Qwen 配置</h1>
+<p>阿里云生态，免费额度大，适合免费体验。</p>
+<div class="step"><div class="step-num">1</div><div class="step-content"><strong>注册阿里云</strong><br>访问 <a href="https://dashscope.console.aliyun.com/" target="_blank">dashscope.console.aliyun.com</a>，用支付宝一键登录。</div></div>
+<div class="step"><div class="step-num">2</div><div class="step-content"><strong>开通 DashScope</strong><br>进入控制台 → 开通 DashScope 服务（免费）。</div></div>
+<div class="step"><div class="step-num">3</div><div class="step-content"><strong>创建 API Key</strong><br>控制台 → API Key 管理 → 创建 → 复制保存。</div></div>
+<div class="step"><div class="step-num">4</div><div class="step-content"><strong>配置</strong>
+<pre><code>openclaw onboard
+# 选择 Qwen
+# API Key: 粘贴你的 Key</code></pre></div></div>
+</div>
+
+<!-- ===== OpenRouter 统一网关 ===== -->
+<div class="page" id="page-openrouter">
+<h1>OpenRouter 统一网关</h1>
+<p>OpenRouter 汇聚了主流 AI 模型，一个 API Key 用所有模型，部分有免费额度。</p>
+<div class="step"><div class="step-num">1</div><div class="step-content"><strong>注册 OpenRouter</strong><br>访问 <a href="https://openrouter.ai" target="_blank">openrouter.ai</a>，GitHub 登录。</div></div>
+<div class="step"><div class="step-num">2</div><div class="step-content"><strong>获取 API Key</strong><br>Keys → Create Key → 复制。</div></div>
+<div class="step"><div class="step-num">3</div><div class="step-content"><strong>配置</strong>
+<pre><code>openclaw onboard
+# 选择 OpenRouter
+# API Key: 粘贴
+# Model: 选择你要用的模型</code></pre></div></div>
+
+<h2>直连方式</h2>
+<table>
+<tr><th>模型</th><th>注册地址</th><th>Base URL</th></tr>
+<tr><td>Claude</td><td><a href="https://console.anthropic.com/" target="_blank">console.anthropic.com</a></td><td>默认即可</td></tr>
+<tr><td>OpenAI</td><td><a href="https://platform.openai.com/" target="_blank">platform.openai.com</a></td><td>默认即可</td></tr>
+<tr><td>Gemini</td><td><a href="https://ai.google.dev/" target="_blank">ai.google.dev</a></td><td>默认即可</td></tr>
+</table>
+</div>
+
+<!-- ===== 定时任务 ===== -->
+<div class="page" id="page-cron">
+<h1>定时任务</h1>
+<p>通过 cron 设置自动执行的任务，让 AI 助手定时完成工作。</p>
+<pre><code># 每天早上 8 点发送天气预报
+openclaw cron add "0 8 * * *" "查看今天深圳天气并发送到飞书"
+
+# 每小时检查邮件
+openclaw cron add "0 * * * *" "检查新邮件，有重要的通知我"
+
+# 每天下午 6 点总结工作
+openclaw cron add "0 18 * * *" "总结今天的工作进度"
+
+# 查看所有定时任务
+openclaw cron list</code></pre>
+</div>
+
+<!-- ===== 多模型与省钱 ===== -->
+<div class="page" id="page-multi-model">
+<h1>多模型与省钱技巧</h1>
+<ol>
+<li><strong>日常对话</strong>用 DeepSeek（~1元/百万 token），复杂任务切 Claude</li>
+<li>用 <strong>OpenRouter</strong> 统一管理多个模型，一个 Key 用所有</li>
+<li>为不同聊天平台配置不同模型（QQ 用便宜的，工作飞书用好的）</li>
+<li>善用<strong>免费额度</strong>：通义千问、Gemini 都有大量免费额度</li>
+</ol>
+</div>
+
+<!-- ===== VPS 部署 ===== -->
+<div class="page" id="page-vps">
+<h1>VPS 部署（24/7 在线）</h1>
+<p>在云服务器上部署 OpenClaw，实现 24 小时在线的 AI 助手。</p>
+
+<h2>推荐配置</h2>
+<table>
+<tr><th>配置</th><th>规格</th><th>价格参考</th></tr>
+<tr><td>最低</td><td>1核 2GB</td><td>~50元/月</td></tr>
+<tr><td>推荐</td><td>2核 4GB</td><td>~100元/月</td></tr>
+</table>
+
+<h2>Docker 一键部署</h2>
+<pre><code>git clone https://github.com/openclaw/openclaw.git
+cd openclaw
+cp .env.example .env
+# 编辑 .env，填入 API Key 和 Bot Token
+docker compose up -d</code></pre>
+</div>
+
+<!-- ===== 安全加固 ===== -->
+<div class="page" id="page-security">
+<h1>安全加固</h1>
+<ul>
+<li><strong>API Key 安全</strong>：不要在群聊中发送 API Key，不要提交到 GitHub</li>
+<li><strong>白名单</strong>：所有聊天平台务必设置 <code>allowFrom</code>，限制谁能用你的机器人</li>
+<li><strong>Token 管理</strong>：定期轮换 Gateway Token 和 Bot Token</li>
+<li><strong>网络安全</strong>：Gateway 默认只监听 <code>127.0.0.1</code>，暴露到公网请配置反向代理 + HTTPS</li>
+<li><strong>权限最小化</strong>：只给聊天平台必要的权限，不要开放所有权限</li>
+</ul>
+</div>
+
+<!-- ===== 配置文件参考 ===== -->
+<div class="page" id="page-config-ref">
+<h1>配置文件参考</h1>
+<p>配置文件位置：<code>~/.openclaw/openclaw.json</code>（U-Claw 用户：<code>U-Claw/data/.openclaw/openclaw.json</code>）</p>
+
+<pre><code>{
+  "gateway": {
+    "mode": "local",
+    "port": 18789,
+    "bind": "127.0.0.1",
+    "auth": { "token": "你的Token" }
+  },
+  "models": {
+    "providers": {
+      "deepseek": {
+        "baseUrl": "https://api.deepseek.com/v1",
+        "apiKey": "sk-xxx",
+        "api": "openai-completions",
+        "models": [{ "id": "deepseek-chat", "contextWindow": 128000 }]
+      }
+    }
+  },
+  "agents": {
+    "defaults": {
+      "model": { "primary": "deepseek/deepseek-chat" }
+    }
+  },
+  "channels": {
+    "telegram": { "enabled": true, "botToken": "xxx:xxx" },
+    "qqbot": { "enabled": true, "appId": "xxx", "appSecret": "xxx" }
+  }
+}</code></pre>
+<div class="tip">配置文件支持<strong>热重载</strong>，修改后自动生效，无需重启网关。</div>
+</div>
+
+<!-- ===== 社区资源 ===== -->
+<div class="page" id="page-resources">
+<h1>社区资源</h1>
+<table>
+<tr><th>分类</th><th>项目</th><th>说明</th></tr>
+<tr><td rowspan="2"><strong>U-Claw</strong></td><td><a href="https://u-claw.org" target="_blank">U-Claw 官网</a></td><td>下载、文档、技能市场</td></tr>
+<tr><td><a href="https://github.com/dongsheng123132/u-claw" target="_blank">GitHub</a></td><td>源码、Issue、Release</td></tr>
+<tr><td rowspan="2"><strong>上游</strong></td><td><a href="https://github.com/openclaw/openclaw" target="_blank">OpenClaw 官方</a></td><td>上游仓库</td></tr>
+<tr><td><a href="https://github.com/openclaw/clawhub" target="_blank">ClawHub</a></td><td>官方技能市场</td></tr>
+<tr><td rowspan="3"><strong>教程</strong></td><td><a href="https://github.com/datawhalechina/hello-claw" target="_blank">hello-claw</a></td><td>Datawhale 体系化入门教程</td></tr>
+<tr><td><a href="https://github.com/yeuxuan/openclaw-docs" target="_blank">openclaw-docs</a></td><td>276 篇源码级深度文档</td></tr>
+<tr><td><a href="https://github.com/VoltAgent/awesome-openclaw-skills" target="_blank">awesome-openclaw-skills</a></td><td>社区精选技能合集</td></tr>
+<tr><td><strong>社区教程</strong></td><td><a href="https://docs.openclaw.ai/zh-CN/install" target="_blank">官方安装手册（中文）</a></td><td>OpenClaw 官方中文安装文档，含 pnpm、源码构建等</td></tr>
+<tr><td rowspan="2"><strong>工具</strong></td><td><a href="https://github.com/NapNeko/NapCatQQ" target="_blank">NapCatQQ</a></td><td>QQ 机器人框架（备选）</td></tr>
+<tr><td><a href="https://github.com/icesword0760/openclaw-wechat" target="_blank">openclaw-wechat</a></td><td>微信接入插件</td></tr>
+</table>
 </div>
 
 </main>
