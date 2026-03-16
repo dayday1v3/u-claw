@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>U-Claw Linux 常用命令速查</title>
+    <style>
+        :root{--bg:#0f172a;--card:#1e293b;--text:#e2e8f0;--dim:#94a3b8;--cyan:#22d3ee;--green:#4ade80;--red:#f87171;--border:#334155}
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:-apple-system,sans-serif;background:var(--bg);color:var(--text);padding:20px;max-width:800px;margin:0 auto}
+        h1{text-align:center;color:var(--cyan);margin-bottom:8px}
+        .subtitle{text-align:center;color:var(--dim);margin-bottom:24px;font-size:14px}
+        h2{color:var(--cyan);margin:28px 0 12px;padding-bottom:6px;border-bottom:1px solid var(--border);font-size:1.1em}
+        .cmd-group{margin-bottom:8px}
+        .cmd-row{display:flex;align-items:center;background:var(--card);border-radius:8px;margin:6px 0;padding:10px 14px;gap:10px}
+        .cmd-desc{color:var(--dim);font-size:13px;min-width:100px;flex-shrink:0}
+        .cmd-code{flex:1;font-family:'SF Mono',monospace;font-size:14px;color:var(--green);word-break:break-all;user-select:all;cursor:pointer}
+        .copy-btn{background:var(--border);color:var(--text);border:none;padding:4px 10px;border-radius:4px;cursor:pointer;font-size:12px;flex-shrink:0}
+        .copy-btn:active{background:var(--cyan);color:var(--bg)}
+        .warn{color:var(--red);font-size:12px;margin-top:2px}
+        .tip{background:#1a2332;border-left:3px solid var(--cyan);padding:10px 14px;margin:10px 0;font-size:13px;border-radius:0 6px 6px 0}
+        .nav{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:20px;justify-content:center}
+        .nav a{background:var(--card);color:var(--dim);padding:6px 12px;border-radius:6px;text-decoration:none;font-size:13px}
+        .nav a:hover{color:var(--cyan);background:var(--border)}
+        @media(max-width:600px){.cmd-row{flex-direction:column;align-items:flex-start;gap:4px}.cmd-desc{min-width:auto}}
+    </style>
+</head>
+<body>
+
+<h1>🦞 U-Claw Linux 命令速查</h1>
+<p class="subtitle">点击命令即可选中，点复制按钮复制到剪贴板</p>
+
+<div class="nav">
+    <a href="#openclaw">OpenClaw</a>
+    <a href="#system">系统信息</a>
+    <a href="#network">网络</a>
+    <a href="#file">文件管理</a>
+    <a href="#process">进程管理</a>
+    <a href="#ssh">SSH远程</a>
+    <a href="#apt">软件安装</a>
+    <a href="#disk">磁盘</a>
+    <a href="#user">用户</a>
+    <a href="#rescue">急救</a>
+</div>
+
+<!-- OpenClaw -->
+<h2 id="openclaw">🤖 OpenClaw 操作</h2>
+
+<div class="cmd-row">
+    <span class="cmd-desc">启动配置向导</span>
+    <span class="cmd-code" onclick="copyThis(this)">openclaw onboard</span>
+    <button class="copy-btn" onclick="copyPrev(this)">复制</button>
+</div>
+<div class="cmd-row">
+    <span class="cmd-desc">查看状态</span>
+    <span class="cmd-code" onclick="copyThis(this)">openclaw status</span>
+    <button class="copy-btn" onclick="copyPrev(this)">复制</button>
+</div>
+<div class="cmd-row">
+    <span class="cmd-desc">启动网关</span>
+    <span class="cmd-code" onclick="copyThis(this)">openclaw gateway start</span>
+    <button class="copy-btn" onclick="copyPrev(this)">复制</button>
+</div>
+<div class="cmd-row">
+    <span class="cmd-desc">停止网关</span>
+    <span class="cmd-code" onclick="copyThis(this)">openclaw gateway stop</span>
+    <button class="copy-btn" onclick="copyPrev(this)">复制</button>
+</div>
+<div class="cmd-row">
+    <span class="cmd-desc">查看配置</span>
+    <span class="cmd-code" onclick="copyThis(this)">cat ~/.openclaw/openclaw.json</span>
+    <button class="copy-btn" onclick="copyPrev(this)">复制</button>
+</div>
+<div class="cmd-row">
+    <span class="cmd-desc">编辑配置</span>
+    <span class="cmd-code" onclick="copyThis(this)">nano ~/.openclaw/openclaw.json</span>
+    <button class="copy-btn" onclick="copyPrev(this)">复制</button>
+</div>
+<div class="cmd-row">
+    <span class="cmd-desc">查看日志</span>
+    <span class="cmd-code" onclick="copyThis(this)">tail -f ~/.openclaw/logs/gateway.log</span>
+    <button class="copy-btn" onclick="copyPrev(this)">复制</button>
+</div>
+<div class="cmd-row">
+    <span class="cmd-desc">安装 QQ 插件</span>
+    <span class="cmd-code" onclick="copyThis(this)">openclaw plugin install @tencent-connect/openclaw-qqbot</span>
+    <button class="copy-btn" onclick="copyPrev(this)">复制</button>
+</div>
+<div class="cmd-row">
+    <span class="cmd-desc">安装技能</span>
+    <span class="cmd-code" onclick="copyThis(this)">openclaw skill install &lt;skill-name&gt;</span>
+    <button class="copy-btn" onclick="copyPrev(this)">复制</button>
+</div>
+
+<!-- 系统信息 -->
+<h2 id="system">💻 系统信息</h2>
+
+<div class="cmd-row">
+    <span class="cmd-desc">系统概览</span>
+    <span class="cmd-code" onclick="copyThis(this)">neofetch</span>
+    <button class="copy-btn" onclick="copyPrev(this)">复制</button>
+</div>
+<div class="cmd-row">
+    <span class="cmd-desc">CPU 信息</span>
+    <span class="cmd-code" onclick="copyThis(this)">lscpu | head -20</span>
+    <button class="copy-btn" onclick="copyPrev(this)">复制</button>
+</div>
+<div class="cmd-row">
+    <span class="cmd-desc">内存使用</span>
+    <span class="cmd-code" onclick="copyThis(this)">free -h</span>
+    <button class="copy-btn" onclick="copyPrev(this)">复制</button>
+</div>
+<div class="cmd-row">
+    <span class="cmd-desc">系统版本</span>
+    <span class="cmd-code" onclick="copyThis(this)">cat /etc/os-release</span>
+    <button class="copy-btn" onclick="copyPrev(this)">复制</button>
+</div>
+<div class="cmd-row">
+    <span class="cmd-desc">运行时间</span>
+    <span class="cmd-code" onclick="copyThis(this)">uptime</span>
+    <button class="copy-btn" onclick="copyPrev(this)">复制</button>
+</div>
+<div class="cmd-row">
+    <span class="cmd-desc">实时监控</span>
+    <span class="cmd-code" onclick="copyThis(this)">htop</span>
+    <button class="copy-btn" onclick="copyPrev(this)">复制</button>
+</div>
+
+<!-- 网络 -->
+<h2 id="network">🌐 网络</h2>
+
+<div class="cmd-row">
+    <span class="cmd-desc">查看 IP</span>
+    <span class="cmd-code" onclick="copyThis(this)">hostname -I</span>
+    <button class="copy-btn" onclick="copyPrev(this)">复制</button>
+</div>
+<div class="cmd-row">
+    <span class="cmd-desc">详细网络信息</span>
+    <span class="cmd-code" onclick="copyThis(this)">ip a</span>
+    <button class="copy-btn" onclick="copyPrev(this)">复制</button>
+</div>
+<div class="cmd-row">
+    <span class="cmd-desc">测试网络连通</span>
+    <span class="cmd-code" onclick="copyThis(this)">ping -c 3 baidu.com</span>
+    <button class="copy-btn" onclick="copyPrev(this)">复制</button>
+</div>
+<div class="cmd-row">
+    <span class="cmd-desc">查看端口占用</span>
+    <span class="cmd-code" onclick="copyThis(this)">sudo ss -tlnp</span>
+    <button class="copy-btn" onclick="copyPrev(this)">复制</button>
+</div>
+<div class="cmd-row">
+    <span class="cmd-desc">WiFi 列表</span>
+    <span class="cmd-code" onclick="copyThis(this)">nmcli dev wifi list</span>
+    <button class="copy-btn" onclick="copyPrev(this)">复制</button>
+</div>
+<div class="cmd-row">
+    <span class="cmd-desc">连接 WiFi</span>
+    <span class="cmd-code" onclick="copyThis(this)">nmcli dev wifi connect "WiFi名" password "密码"</span>
+    <button class="copy-btn" onclick="copyPrev(this)">复制</button>
+</div>
+<div class="cmd-row">
+    <span class="cmd-desc">DNS 查询</span>
+    <span class="cmd-code" onclick="copyThis(this)">nslookup baidu.com</span>
+    <button class="copy-btn" onclick="copyPrev(this)">复制</button>
+</div>
+
+<!-- 文件管理 -->
+<h2 id="file">📁 文件管理</h2>
+
+<div class="cmd-row">
+    <span class="cmd-desc">列出文件</span>
+    <span class="cmd-code" onclick="copyThis(this)">ls -la</span>
+    <button class="copy-btn" onclick="copyPrev(this)">复制</button>
+</div>
+<div class="cmd-row">
+    <span class="cmd-desc">树形显示</span>
+    <span class="cmd-code" onclick="copyThis(this)">tree -L 2</span>
+    <button class="copy-btn" onclick="copyPrev(this)">复制</button>
+</div>
+<div class="cmd-row">
+    <span class="cmd-desc">查找文件</span>
+    <span class="cmd-code" onclick="copyThis(this)">find / -name "文件名" 2>/dev/null</span>
+    <button class="copy-btn" onclick="copyPrev(this)">复制</button>
+</div>
+<div class="cmd-row">
+    <span class="cmd-desc">查看文件</span>
+    <span class="cmd-code" onclick="copyThis(this)">cat 文件名</span>
+    <button class="copy-btn" onclick="copyPrev(this)">复制</button>
+</div>
+<div class="cmd-row">
+    <span class="cmd-desc">编辑文件</span>
+    <span class="cmd-code" onclick="copyThis(this)">nano 文件名</span>
+    <button class="copy-btn" onclick="copyPrev(this)">复制</button>
+</div>
+<div class="cmd-row">
+    <span class="cmd-desc">复制文件</span>
+    <span class="cmd-code" onclick="copyThis(this)">cp 源文件 目标路径</span>
+    <button class="copy-btn" onclick="copyPrev(this)">复制</button>
+</div>
+<div class="cmd-row">
+    <span class="cmd-desc">移动/重命名</span>
+    <span class="cmd-code" onclick="copyThis(this)">mv 旧名 新名</span>
+    <button class="copy-btn" onclick="copyPrev(this)">复制</button>
+</div>
+<div class="cmd-row">
+    <span class="cmd-desc">删除文件</span>
+    <span class="cmd-code" onclick="copyThis(this)">rm 文件名</span>
+    <button class="copy-btn" onclick="copyPrev(this)">复制</button>
+</div>
+<div class="cmd-row">
+    <span class="cmd-desc">创建目录</span>
+    <span class="cmd-code" onclick="copyThis(this)">mkdir -p 目录名</span>
+    <button class="copy-btn" onclick="copyPrev(this)">复制</button>
+</div>
+
+<!-- 进程管理 -->
+<h2 id="process">⚙️ 进程管理</h2>
+
+<div class="cmd-row">
+    <span class="cmd-desc">查看所有进程</span>
+    <span class="cmd-code" onclick="copyThis(this)">ps aux</span>
+    <button class="copy-btn" onclick="copyPrev(this)">复制</button>
+</div>
+<div class="cmd-row">
+    <span class="cmd-desc">搜索进程</span>
+    <span class="cmd-code" onclick="copyThis(this)">ps aux | grep 进程名</span>
+    <button class="copy-btn" onclick="copyPrev(this)">复制</button>
+</div>
+<div class="cmd-row">
+    <span class="cmd-desc">杀死进程</span>
+    <span class="cmd-code" onclick="copyThis(this)">kill -9 进程PID</span>
+    <button class="copy-btn" onclick="copyPrev(this)">复制</button>
+</div>
+<div class="cmd-row">
+    <span class="cmd-desc">后台运行</span>
+    <span class="cmd-code" onclick="copyThis(this)">nohup 命令 &amp;</span>
+    <button class="copy-btn" onclick="copyPrev(this)">复制</button>
+</div>
+<div class="cmd-row">
+    <span class="cmd-desc">实时监控</span>
+    <span class="cmd-code" onclick="copyThis(this)">htop</span>
+    <button class="copy-btn" onclick="copyPrev(this)">复制</button>
+</div>
+
+<!-- SSH 远程 -->
+<h2 id="ssh">🔑 SSH 远程控制</h2>
+
+<div class="tip">完整 SSH 设置教程请看 <a href="ssh.html" style="color:var(--cyan)">u-claw.org/ssh.html</a></div>
+
+<div class="cmd-row">
+    <span class="cmd-desc">安装 SSH</span>
+    <span class="cmd-code" onclick="copyThis(this)">sudo apt update && sudo apt install -y openssh-server && sudo systemctl start ssh</span>
+    <button class="copy-btn" onclick="copyPrev(this)">复制</button>
+</div>
+<div class="cmd-row">
+    <span class="cmd-desc">设置密码</span>
+    <span class="cmd-code" onclick="copyThis(this)">sudo passwd $USER</span>
+    <button class="copy-btn" onclick="copyPrev(this)">复制</button>
+</div>
+<div class="cmd-row">
+    <span class="cmd-desc">查看 IP</span>
+    <span class="cmd-code" onclick="copyThis(this)">hostname -I</span>
+    <button class="copy-btn" onclick="copyPrev(this)">复制</button>
+</div>
+<div class="cmd-row">
+    <span class="cmd-desc">SSH 状态</span>
+    <span class="cmd-code" onclick="copyThis(this)">sudo systemctl status ssh</span>
+    <button class="copy-btn" onclick="copyPrev(this)">复制</button>
+</div>
+<div class="cmd-row">
+    <span class="cmd-desc">重启 SSH</span>
+    <span class="cmd-code" onclick="copyThis(this)">sudo systemctl restart ssh</span>
+    <button class="copy-btn" onclick="copyPrev(this)">复制</button>
+</div>
+
+<!-- 软件安装 -->
+<h2 id="apt">📦 软件安装 (apt)</h2>
+
+<div class="cmd-row">
+    <span class="cmd-desc">更新软件列表</span>
+    <span class="cmd-code" onclick="copyThis(this)">sudo apt update</span>
+    <button class="copy-btn" onclick="copyPrev(this)">复制</button>
+</div>
+<div class="cmd-row">
+    <span class="cmd-desc">升级所有软件</span>
+    <span class="cmd-code" onclick="copyThis(this)">sudo apt upgrade -y</span>
+    <button class="copy-btn" onclick="copyPrev(this)">复制</button>
+</div>
+<div class="cmd-row">
+    <span class="cmd-desc">安装软件</span>
+    <span class="cmd-code" onclick="copyThis(this)">sudo apt install -y 软件名</span>
+    <button class="copy-btn" onclick="copyPrev(this)">复制</button>
+</div>
+<div class="cmd-row">
+    <span class="cmd-desc">卸载软件</span>
+    <span class="cmd-code" onclick="copyThis(this)">sudo apt remove 软件名</span>
+    <button class="copy-btn" onclick="copyPrev(this)">复制</button>
+</div>
+<div class="cmd-row">
+    <span class="cmd-desc">搜索软件</span>
+    <span class="cmd-code" onclick="copyThis(this)">apt search 关键词</span>
+    <button class="copy-btn" onclick="copyPrev(this)">复制</button>
+</div>
+<div class="cmd-row">
+    <span class="cmd-desc">清理缓存</span>
+    <span class="cmd-code" onclick="copyThis(this)">sudo apt autoremove -y && sudo apt clean</span>
+    <button class="copy-btn" onclick="copyPrev(this)">复制</button>
+</div>
+
+<!-- 磁盘 -->
+<h2 id="disk">💾 磁盘管理</h2>
+
+<div class="cmd-row">
+    <span class="cmd-desc">磁盘空间</span>
+    <span class="cmd-code" onclick="copyThis(this)">df -h</span>
+    <button class="copy-btn" onclick="copyPrev(this)">复制</button>
+</div>
+<div class="cmd-row">
+    <span class="cmd-desc">当前目录大小</span>
+    <span class="cmd-code" onclick="copyThis(this)">du -sh *</span>
+    <button class="copy-btn" onclick="copyPrev(this)">复制</button>
+</div>
+<div class="cmd-row">
+    <span class="cmd-desc">交互式磁盘分析</span>
+    <span class="cmd-code" onclick="copyThis(this)">ncdu /</span>
+    <button class="copy-btn" onclick="copyPrev(this)">复制</button>
+</div>
+<div class="cmd-row">
+    <span class="cmd-desc">挂载 U 盘</span>
+    <span class="cmd-code" onclick="copyThis(this)">sudo mount /dev/sdb1 /mnt</span>
+    <button class="copy-btn" onclick="copyPrev(this)">复制</button>
+</div>
+<div class="cmd-row">
+    <span class="cmd-desc">列出磁盘</span>
+    <span class="cmd-code" onclick="copyThis(this)">lsblk</span>
+    <button class="copy-btn" onclick="copyPrev(this)">复制</button>
+</div>
+
+<!-- 用户 -->
+<h2 id="user">👤 用户与权限</h2>
+
+<div class="cmd-row">
+    <span class="cmd-desc">当前用户</span>
+    <span class="cmd-code" onclick="copyThis(this)">whoami</span>
+    <button class="copy-btn" onclick="copyPrev(this)">复制</button>
+</div>
+<div class="cmd-row">
+    <span class="cmd-desc">切换 root</span>
+    <span class="cmd-code" onclick="copyThis(this)">sudo -i</span>
+    <button class="copy-btn" onclick="copyPrev(this)">复制</button>
+</div>
+<div class="cmd-row">
+    <span class="cmd-desc">修改密码</span>
+    <span class="cmd-code" onclick="copyThis(this)">passwd</span>
+    <button class="copy-btn" onclick="copyPrev(this)">复制</button>
+</div>
+<div class="cmd-row">
+    <span class="cmd-desc">修改权限</span>
+    <span class="cmd-code" onclick="copyThis(this)">chmod 755 文件名</span>
+    <button class="copy-btn" onclick="copyPrev(this)">复制</button>
+</div>
+
+<!-- 急救 -->
+<h2 id="rescue">🚨 急救命令</h2>
+
+<div class="cmd-row">
+    <span class="cmd-desc">解锁 apt</span>
+    <span class="cmd-code" onclick="copyThis(this)">sudo rm -f /var/lib/dpkg/lock-frontend /var/lib/apt/lists/lock && sudo dpkg --configure -a</span>
+    <button class="copy-btn" onclick="copyPrev(this)">复制</button>
+</div>
+<div class="cmd-row">
+    <span class="cmd-desc">重启网络</span>
+    <span class="cmd-code" onclick="copyThis(this)">sudo systemctl restart NetworkManager</span>
+    <button class="copy-btn" onclick="copyPrev(this)">复制</button>
+</div>
+<div class="cmd-row">
+    <span class="cmd-desc">重启电脑</span>
+    <span class="cmd-code" onclick="copyThis(this)">sudo reboot</span>
+    <button class="copy-btn" onclick="copyPrev(this)">复制</button>
+</div>
+<div class="cmd-row">
+    <span class="cmd-desc">关机</span>
+    <span class="cmd-code" onclick="copyThis(this)">sudo shutdown -h now</span>
+    <button class="copy-btn" onclick="copyPrev(this)">复制</button>
+</div>
+<div class="cmd-row">
+    <span class="cmd-desc">查看错误日志</span>
+    <span class="cmd-code" onclick="copyThis(this)">journalctl -xe --no-pager | tail -30</span>
+    <button class="copy-btn" onclick="copyPrev(this)">复制</button>
+</div>
+<div class="cmd-row">
+    <span class="cmd-desc">强杀所有 node</span>
+    <span class="cmd-code" onclick="copyThis(this)">pkill -f node</span>
+    <button class="copy-btn" onclick="copyPrev(this)">复制</button>
+</div>
+
+<div style="text-align:center;color:var(--dim);margin-top:40px;padding:20px;border-top:1px solid var(--border);font-size:13px">
+    🦞 U-Claw 虾盘 &nbsp;|&nbsp; <a href="https://u-claw.org" style="color:var(--cyan)">u-claw.org</a> &nbsp;|&nbsp; <a href="guide.html" style="color:var(--cyan)">完整教程</a> &nbsp;|&nbsp; <a href="ssh.html" style="color:var(--cyan)">SSH 设置</a>
+</div>
+
+<script>
+function copyThis(el){
+    const t=el.textContent.trim();
+    navigator.clipboard.writeText(t).then(()=>{el.style.color='#22d3ee';setTimeout(()=>el.style.color='',1000)});
+}
+function copyPrev(btn){
+    const code=btn.previousElementSibling;
+    const t=code.textContent.trim();
+    navigator.clipboard.writeText(t).then(()=>{btn.textContent='已复制 ✓';setTimeout(()=>btn.textContent='复制',1500)});
+}
+</script>
+</body>
+</html>
