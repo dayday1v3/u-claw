@@ -145,6 +145,9 @@ if (-not $USE_SYSTEM_NODE) {
             exit 1
         }
     }
+
+    # 把下载的 Node 加到 PATH，让 npm.cmd 能找到 node.exe
+    $env:PATH = "$NODE_INSTALL_DIR;$env:PATH"
 }
 
 Write-Host ""
@@ -172,7 +175,12 @@ if (Test-Path "$CORE_DIR\node_modules\openclaw") {
 
     Write-Cyan "  ↓ 从国内镜像安装..."
     Push-Location $CORE_DIR
-    & $INSTALL_NODE $INSTALL_NPM install --registry=$MIRROR 2>&1 | Select-Object -Last 5
+    & $INSTALL_NPM install --registry=$MIRROR 2>&1 | Select-Object -Last 5
+    if ($LASTEXITCODE -ne 0) {
+        Write-Red "  ✗ OpenClaw 安装失败，请检查网络"
+        Pop-Location
+        exit 1
+    }
     Pop-Location
     Write-Green "  ✓ OpenClaw 安装完成"
 }
@@ -190,10 +198,11 @@ if (Test-Path "$CORE_DIR\node_modules\@sliverp\qqbot") {
     Write-Cyan "  ↓ 安装 QQ 插件..."
     try {
         Push-Location $CORE_DIR
-        & $INSTALL_NODE $INSTALL_NPM install "@sliverp/qqbot@latest" --registry=$MIRROR 2>&1 | Out-Null
+        & $INSTALL_NPM install "@sliverp/qqbot@latest" --registry=$MIRROR 2>&1 | Out-Null
         Pop-Location
         Write-Green "  ✓ QQ 插件安装完成"
     } catch {
+        Pop-Location
         Write-Yellow "  ⚠ QQ 插件安装失败（不影响主功能）"
     }
 }
