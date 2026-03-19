@@ -1,18 +1,22 @@
 # ============================================================
-# U-Claw 一键安装脚本 (Windows PowerShell)
-# 用法: irm https://u-claw.org/install.ps1 | iex
-#       或: powershell -ExecutionPolicy Bypass -File install.ps1
+# U-Claw Installer (Windows PowerShell)
+# Usage: irm https://u-claw.org/install.ps1 | iex
+#    or: powershell -ExecutionPolicy Bypass -File install.ps1
 # ============================================================
 
-# 编码 + 执行策略
-[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
-$OutputEncoding = [System.Text.Encoding]::UTF8
-try { chcp 65001 | Out-Null } catch {}
+# --- Encoding: must run BEFORE any output ---
 Set-ExecutionPolicy Bypass -Scope Process -Force -ErrorAction SilentlyContinue
+try {
+    $null = cmd /c chcp 65001
+    [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+    [Console]::InputEncoding = [System.Text.Encoding]::UTF8
+    $OutputEncoding = [System.Text.Encoding]::UTF8
+    $PSDefaultParameterValues['Out-File:Encoding'] = 'utf8'
+} catch {}
 
 $ErrorActionPreference = "Stop"
 
-# ---- 常量 ----
+# ---- Constants ----
 $UCLAW_DIR = "$env:USERPROFILE\.uclaw"
 $RUNTIME_DIR = "$UCLAW_DIR\runtime"
 $CORE_DIR = "$UCLAW_DIR\core"
@@ -22,51 +26,49 @@ $NODE_VERSION = "v22.16.0"
 $MIRROR = "https://registry.npmmirror.com"
 $NODE_MIRROR = "https://npmmirror.com/mirrors/node"
 
-# ---- 颜色函数 ----
+# ---- Color helpers ----
 function Write-Green($msg) { Write-Host $msg -ForegroundColor Green }
 function Write-Cyan($msg) { Write-Host $msg -ForegroundColor Cyan }
 function Write-Yellow($msg) { Write-Host $msg -ForegroundColor Yellow }
 function Write-Red($msg) { Write-Host $msg -ForegroundColor Red }
 
 # ============================================================
-# Step 1: Banner + 系统检测
+# Step 1: Banner + System detection
 # ============================================================
 Clear-Host
 Write-Host ""
-Write-Cyan "  ╔══════════════════════════════════════════╗"
-Write-Cyan "  ║  🦞 U-Claw 一键安装 (Windows)            ║"
-Write-Cyan "  ║  让 AI 助手一行命令装好                    ║"
-Write-Cyan "  ╚══════════════════════════════════════════╝"
+Write-Cyan "  ==========================================="
+Write-Cyan "    U-Claw - AI Assistant Installer (Windows)"
+Write-Cyan "  ==========================================="
 Write-Host ""
 
-# 系统检测
 $ARCH = $env:PROCESSOR_ARCHITECTURE
 if ($ARCH -eq "AMD64" -or $ARCH -eq "x86_64") {
     $PLATFORM = "win-x64"
-    Write-Green "  系统: Windows x64 ✓"
+    Write-Green "  System: Windows x64"
 } elseif ($ARCH -eq "ARM64") {
     $PLATFORM = "win-arm64"
-    Write-Green "  系统: Windows ARM64 ✓"
+    Write-Green "  System: Windows ARM64"
 } else {
-    Write-Red "  不支持的架构: $ARCH"
+    Write-Red "  Unsupported architecture: $ARCH"
     exit 1
 }
 
-Write-Host "  安装目录: $UCLAW_DIR" -ForegroundColor Cyan
+Write-Host "  Install path: $UCLAW_DIR" -ForegroundColor Cyan
 Write-Host ""
 
-# 检查已有安装
+# Check existing install
 if (Test-Path "$CORE_DIR\node_modules\openclaw") {
-    Write-Yellow "  检测到已有安装: $UCLAW_DIR"
-    $overwrite = Read-Host "  覆盖安装？(y/n) [y]"
+    Write-Yellow "  Found existing install: $UCLAW_DIR"
+    $overwrite = Read-Host "  Overwrite? (y/n) [y]"
     if ($overwrite -eq "n" -or $overwrite -eq "N") {
-        Write-Host "  已取消" -ForegroundColor DarkGray
+        Write-Host "  Cancelled." -ForegroundColor DarkGray
         exit 0
     }
     Write-Host ""
 }
 
-# 创建目录
+# Create directories
 New-Item -ItemType Directory -Force -Path $RUNTIME_DIR | Out-Null
 New-Item -ItemType Directory -Force -Path $CORE_DIR | Out-Null
 New-Item -ItemType Directory -Force -Path "$DATA_DIR\.openclaw" | Out-Null
@@ -74,29 +76,27 @@ New-Item -ItemType Directory -Force -Path "$DATA_DIR\memory" | Out-Null
 New-Item -ItemType Directory -Force -Path "$DATA_DIR\backups" | Out-Null
 
 # ============================================================
-# Step 2: Node.js v22 安装
+# Step 2: Node.js
 # ============================================================
-Write-Host "  [1/7] 安装 Node.js $NODE_VERSION ..." -ForegroundColor White
+Write-Host "  [1/7] Install Node.js $NODE_VERSION ..." -ForegroundColor White
 
 $NODE_INSTALL_DIR = "$RUNTIME_DIR\node-$PLATFORM"
 $INSTALL_NODE = ""
 $NPM_CLI = ""
 $USE_SYSTEM_NODE = $false
 
-# 检查系统 Node.js
+# Check system Node.js
 $sysNode = Get-Command node -ErrorAction SilentlyContinue
 if ($sysNode) {
     $sysVer = & node --version 2>$null
     $major = [int]($sysVer -replace 'v','').Split('.')[0]
     if ($major -ge 20) {
-        Write-Green "  ✓ 系统已有 Node.js $sysVer，复用"
+        Write-Green "  [OK] System Node.js $sysVer found, reusing"
         $INSTALL_NODE = "node"
-        # 通过 npm.cmd 的位置找到 npm-cli.js
         $npmCmd = (Get-Command npm -ErrorAction SilentlyContinue).Source
         $npmRoot = Split-Path (Split-Path $npmCmd)
         $NPM_CLI = "$npmRoot\node_modules\npm\bin\npm-cli.js"
         if (-not (Test-Path $NPM_CLI)) {
-            # fallback: 直接用 npm prefix 找
             $npmPrefix = & node -e "console.log(process.execPath.replace(/[\\\/]node\.exe$/i,''))" 2>$null
             $NPM_CLI = "$npmPrefix\node_modules\npm\bin\npm-cli.js"
         }
@@ -106,71 +106,65 @@ if ($sysNode) {
 
 if (-not $USE_SYSTEM_NODE) {
     if (Test-Path "$NODE_INSTALL_DIR\node.exe") {
-        Write-Green "  ✓ Node.js 已存在，跳过下载"
+        Write-Green "  [OK] Node.js already exists, skip download"
         $INSTALL_NODE = "$NODE_INSTALL_DIR\node.exe"
         $NPM_CLI = "$NODE_INSTALL_DIR\node_modules\npm\bin\npm-cli.js"
     } else {
-        Write-Cyan "  ↓ 从国内镜像下载 Node.js $NODE_VERSION ($PLATFORM)..."
+        Write-Cyan "  Downloading Node.js $NODE_VERSION ($PLATFORM)..."
         $zipName = "node-$NODE_VERSION-$PLATFORM.zip"
         $url = "$NODE_MIRROR/$NODE_VERSION/$zipName"
         $tempZip = "$env:TEMP\$zipName"
         $tempExtract = "$env:TEMP\node-extract-uclaw"
 
-        # 下载
         Write-Host "    $url"
         try {
             [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
             $ProgressPreference = 'SilentlyContinue'
             Invoke-WebRequest -Uri $url -OutFile $tempZip -UseBasicParsing
         } catch {
-            # 尝试 curl
             try {
                 & curl.exe -# -L $url -o $tempZip
             } catch {
-                Write-Red "  ✗ 下载失败！请检查网络连接"
+                Write-Red "  [FAIL] Download failed! Check your network."
                 exit 1
             }
         }
 
-        # 解压
-        Write-Host "  解压中..."
+        Write-Host "  Extracting..."
         if (Test-Path $tempExtract) { Remove-Item -Recurse -Force $tempExtract }
         Expand-Archive -Path $tempZip -DestinationPath $tempExtract -Force
         $extractedDir = Get-ChildItem $tempExtract | Select-Object -First 1
         New-Item -ItemType Directory -Force -Path $NODE_INSTALL_DIR | Out-Null
         Copy-Item -Recurse -Force "$($extractedDir.FullName)\*" $NODE_INSTALL_DIR
 
-        # 清理
         Remove-Item -Force $tempZip -ErrorAction SilentlyContinue
         Remove-Item -Recurse -Force $tempExtract -ErrorAction SilentlyContinue
 
         if (Test-Path "$NODE_INSTALL_DIR\node.exe") {
-            Write-Green "  ✓ Node.js 安装完成"
+            Write-Green "  [OK] Node.js installed"
             $INSTALL_NODE = "$NODE_INSTALL_DIR\node.exe"
             $NPM_CLI = "$NODE_INSTALL_DIR\node_modules\npm\bin\npm-cli.js"
         } else {
-            Write-Red "  ✗ Node.js 下载失败"
+            Write-Red "  [FAIL] Node.js install failed"
             exit 1
         }
     }
 
-    # npm-cli.js 内部可能需要通过 PATH 找到 node.exe
     $env:PATH = "$NODE_INSTALL_DIR;$env:PATH"
 }
 
 Write-Host ""
 
 # ============================================================
-# Step 3: OpenClaw + QQ 插件安装（预打包下载，无需 npm）
+# Step 3: OpenClaw + QQ plugin (pre-bundled download)
 # ============================================================
-Write-Host "  [2/7] 安装 OpenClaw + QQ 插件 ..." -ForegroundColor White
+Write-Host "  [2/7] Install OpenClaw + QQ plugin ..." -ForegroundColor White
 
 if (Test-Path "$CORE_DIR\node_modules\openclaw") {
-    Write-Green "  ✓ OpenClaw 已安装，跳过"
+    Write-Green "  [OK] OpenClaw already installed, skip"
 } else {
-    Write-Cyan "  ↓ 下载预打包文件（免 npm install）..."
+    Write-Cyan "  Downloading pre-bundled package (no npm install needed)..."
     $BUNDLE_URL = "https://github.com/dongsheng123132/u-claw/releases/download/v1.0.0-bundle/openclaw-bundle.zip"
-    # 国内 GitHub 加速镜像
     $BUNDLE_MIRRORS = @(
         "https://ghfast.top/$BUNDLE_URL",
         "https://gh-proxy.com/$BUNDLE_URL",
@@ -181,7 +175,7 @@ if (Test-Path "$CORE_DIR\node_modules\openclaw") {
     $downloaded = $false
 
     foreach ($mirrorUrl in $BUNDLE_MIRRORS) {
-        Write-Host "    尝试: $mirrorUrl" -ForegroundColor DarkGray
+        Write-Host "    Trying: $mirrorUrl" -ForegroundColor DarkGray
         try {
             [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
             $ProgressPreference = 'SilentlyContinue'
@@ -191,13 +185,12 @@ if (Test-Path "$CORE_DIR\node_modules\openclaw") {
                 break
             }
         } catch {
-            Write-Host "    ↑ 失败，换下一个..." -ForegroundColor DarkGray
+            Write-Host "    Failed, trying next..." -ForegroundColor DarkGray
         }
     }
 
     if (-not $downloaded) {
-        # 最后尝试 curl
-        Write-Host "    尝试 curl 下载..." -ForegroundColor DarkGray
+        Write-Host "    Trying curl..." -ForegroundColor DarkGray
         try {
             & curl.exe -sL "https://ghfast.top/$BUNDLE_URL" -o $bundleZip
             if ((Get-Item $bundleZip).Length -gt 1MB) { $downloaded = $true }
@@ -205,42 +198,41 @@ if (Test-Path "$CORE_DIR\node_modules\openclaw") {
     }
 
     if (-not $downloaded) {
-        Write-Red "  ✗ 下载失败！请检查网络"
+        Write-Red "  [FAIL] Download failed! Check your network."
         exit 1
     }
 
-    Write-Host "  解压中..." -ForegroundColor Cyan
+    Write-Host "  Extracting..." -ForegroundColor Cyan
     $tempExtract = "$env:TEMP\openclaw-bundle-extract"
     if (Test-Path $tempExtract) { Remove-Item -Recurse -Force $tempExtract }
     Expand-Archive -Path $bundleZip -DestinationPath $tempExtract -Force
     New-Item -ItemType Directory -Force -Path $CORE_DIR | Out-Null
     Copy-Item -Recurse -Force "$tempExtract\*" $CORE_DIR
 
-    # 清理
     Remove-Item -Force $bundleZip -ErrorAction SilentlyContinue
     Remove-Item -Recurse -Force $tempExtract -ErrorAction SilentlyContinue
 
     if (Test-Path "$CORE_DIR\node_modules\openclaw\openclaw.mjs") {
-        Write-Green "  ✓ OpenClaw 安装完成"
+        Write-Green "  [OK] OpenClaw installed"
     } else {
-        Write-Red "  ✗ OpenClaw 安装失败"
+        Write-Red "  [FAIL] OpenClaw install failed"
         exit 1
     }
 }
 
-# QQ 插件（已包含在预打包中）
+# QQ plugin (included in bundle)
 if (Test-Path "$CORE_DIR\node_modules\@sliverp\qqbot") {
-    Write-Green "  ✓ QQ 插件已包含"
+    Write-Green "  [OK] QQ plugin included"
 } else {
-    Write-Yellow "  ⚠ QQ 插件未包含（不影响主功能）"
+    Write-Yellow "  [WARN] QQ plugin not included (does not affect main features)"
 }
 
 Write-Host ""
 
 # ============================================================
-# Step 5: 写入 10 个中国技能
+# Step 4: China-optimized skills (10 skills)
 # ============================================================
-Write-Host "  [4/7] 安装中国本地化技能 (10个) ..." -ForegroundColor White
+Write-Host "  [4/7] Install China skills (10) ..." -ForegroundColor White
 
 $SKILLS_TARGET = "$CORE_DIR\node_modules\openclaw\skills"
 if (-not (Test-Path $SKILLS_TARGET)) { New-Item -ItemType Directory -Force -Path $SKILLS_TARGET | Out-Null }
@@ -251,197 +243,185 @@ $skills = @{
     "bilibili-helper" = @'
 ---
 name: bilibili-helper
-description: "B站内容助手 - 视频标题描述优化、标签策略、封面设计建议、分区选择、评论互动"
-metadata: { "openclaw": { "emoji": "📺" } }
+description: "Bilibili content helper - video title, tags, cover design, category selection"
+metadata: { "openclaw": { "emoji": "TV" } }
 ---
 
-# B站内容助手
+# Bilibili Content Helper
 
-帮助 UP 主优化视频标题、描述、标签和封面，提升视频在 B 站的推荐和互动表现。
+Optimize video titles, descriptions, tags and covers for better recommendations on Bilibili.
 
-## 标题公式
+## Title formulas
 
-1. **疑问式**: "为什么XX？看完你就懂了"
-2. **教程式**: "XX教程｜从零开始手把手教学"
-3. **测评式**: "花了XX元买了XX，值不值？"
-4. **挑战式**: "挑战XX天只用XX"
-5. **盘点式**: "XX年度十大XX盘点"
-
-## 分区选择指南
-
-| 内容类型 | 推荐分区 |
-|---------|---------|
-| 编程教程 | 科技 → 计算机技术 |
-| 日常 vlog | 生活 → 日常 |
-| 游戏实况 | 游戏 → 单机/网游 |
-| 知识科普 | 知识 → 社科人文/科学科普 |
-| AI/数码 | 科技 → 软件应用 |
+1. Question: "Why XX? You'll understand after watching"
+2. Tutorial: "XX Tutorial | Step by step from scratch"
+3. Review: "Spent XX yuan on XX, is it worth it?"
+4. Challenge: "Challenge XX days using only XX"
+5. Ranking: "Top 10 XX of the year"
 '@
 
     "china-search" = @'
 ---
 name: china-search
-description: "国内搜索引擎 - 百度、搜狗、Bing中国搜索，绕过GFW限制"
-metadata: { "openclaw": { "emoji": "🔍" } }
+description: "China search engines - Baidu, Sogou, Bing China search"
+metadata: { "openclaw": { "emoji": "search" } }
 ---
 
-# 国内搜索引擎助手
+# China Search Engine Helper
 
-通过 curl 调用百度、搜狗、Bing 中国等国内搜索引擎获取信息。
+Search via Baidu, Sogou, Bing China using curl.
 
-## 搜索命令
+## Commands
 
 ```bash
-curl -s -L "https://www.baidu.com/s?wd=关键词" -H "User-Agent: Mozilla/5.0"
-curl -s -L "https://weixin.sogou.com/weixin?query=关键词" -H "User-Agent: Mozilla/5.0"
-curl -s -L "https://cn.bing.com/search?q=关键词" -H "User-Agent: Mozilla/5.0"
+curl -s -L "https://www.baidu.com/s?wd=keyword" -H "User-Agent: Mozilla/5.0"
+curl -s -L "https://weixin.sogou.com/weixin?query=keyword" -H "User-Agent: Mozilla/5.0"
+curl -s -L "https://cn.bing.com/search?q=keyword" -H "User-Agent: Mozilla/5.0"
 ```
 '@
 
     "china-translate" = @'
 ---
 name: china-translate
-description: "中英互译 + 本地化 - 技术翻译、UI本地化、文化适配、避免机翻腔"
-metadata: { "openclaw": { "emoji": "🌐" } }
+description: "CN-EN translation - tech docs, UI localization, cultural adaptation"
+metadata: { "openclaw": { "emoji": "globe" } }
 ---
 
-# 中英互译 + 本地化助手
+# CN-EN Translation Helper
 
-专业的中英双向翻译工具，专注技术文档翻译、产品本地化和文化适配。
+Professional Chinese-English bidirectional translation for tech docs and product localization.
 
-## 常见术语对照
+## Common terms
 
-| English | 中文 |
-|---------|------|
-| Deploy | 部署 |
-| Repository | 仓库 |
-| Container | 容器 |
-| Middleware | 中间件 |
-| Render | 渲染 |
-| Token | Token / 令牌 |
-| Prompt | 提示词 |
-| Fine-tune | 微调 |
+| English | Chinese |
+|---------|---------|
+| Deploy | Bu Shu |
+| Repository | Cang Ku |
+| Container | Rong Qi |
+| Middleware | Zhong Jian Jian |
+| Token | Token / Ling Pai |
+| Prompt | Ti Shi Ci |
 '@
 
     "china-weather" = @'
 ---
 name: china-weather
-description: "中国城市天气查询 - 支持中文城市名、wttr.in接口"
-metadata: { "openclaw": { "emoji": "🌤️" } }
+description: "China city weather query - supports Chinese city names, wttr.in API"
+metadata: { "openclaw": { "emoji": "sun" } }
 ---
 
-# 中国城市天气查询
+# China Weather Query
 
 ```bash
-curl -s "wttr.in/深圳?lang=zh"
-curl -s "wttr.in/深圳?format=j1"
+curl -s "wttr.in/Shenzhen?lang=zh"
+curl -s "wttr.in/Beijing?format=j1"
 ```
 '@
 
     "deepseek-helper" = @'
 ---
 name: deepseek-helper
-description: "DeepSeek API 助手 - 编程辅助、模型选择、API调用指南、定价信息"
-metadata: { "openclaw": { "emoji": "🤖" } }
+description: "DeepSeek API helper - model selection, API guide, pricing info"
+metadata: { "openclaw": { "emoji": "robot" } }
 ---
 
-# DeepSeek API 助手
+# DeepSeek API Helper
 
-## 模型对比
+## Models
 
-| 模型 | 适用场景 | 上下文 |
-|------|---------|--------|
-| deepseek-chat | 日常对话、文案 | 32K |
-| deepseek-coder | 代码生成 | 16K |
-| deepseek-reasoner | 复杂推理 | 64K |
+| Model | Use case | Context |
+|-------|----------|---------|
+| deepseek-chat | Daily chat | 32K |
+| deepseek-coder | Code generation | 16K |
+| deepseek-reasoner | Complex reasoning | 64K |
 
-- API 兼容 OpenAI 格式，base_url: https://api.deepseek.com
-- 国内直连，API Key: https://platform.deepseek.com
+- OpenAI-compatible API, base_url: https://api.deepseek.com
+- Direct access in China, API Key: https://platform.deepseek.com
 '@
 
     "douyin-script" = @'
 ---
 name: douyin-script
-description: "抖音/快手短视频脚本 - 前3秒hook、脚本结构、话题标签策略"
-metadata: { "openclaw": { "emoji": "🎬" } }
+description: "Douyin/Kuaishou short video script - hook, structure, hashtag strategy"
+metadata: { "openclaw": { "emoji": "video" } }
 ---
 
-# 抖音/快手短视频脚本助手
+# Douyin/Kuaishou Script Helper
 
-## 前3秒 Hook 公式
+## First 3-second Hook formulas
 
-1. 反常识: "你一直在做的XX其实是错的"
-2. 数字冲击: "只花了100块，效果比1000块的还好"
-3. 悬念提问: "猜猜这个东西是干什么的？"
-4. 情绪共鸣: "打工人看完都沉默了..."
-5. 结果前置: "最终效果太绝了！"
+1. Counter-intuitive: "What you've been doing is actually wrong"
+2. Number shock: "Only 100 yuan but better than 1000 yuan"
+3. Suspense: "Guess what this is for?"
+4. Emotional: "Workers fell silent after watching..."
+5. Result first: "The final result is amazing!"
 
-## 话题标签: 大+中+小话题，共5-8个
-## 黄金时段: 早7-9、午12-14、晚18-22
+## Hashtags: large + medium + small topics, 5-8 total
+## Best time: 7-9am, 12-2pm, 6-10pm
 '@
 
     "wechat-article" = @'
 ---
 name: wechat-article
-description: "微信公众号文章写作 - 文章结构、排版规范、阅读转化优化"
-metadata: { "openclaw": { "emoji": "💚" } }
+description: "WeChat article writing - structure, formatting, conversion optimization"
+metadata: { "openclaw": { "emoji": "green" } }
 ---
 
-# 微信公众号文章写作助手
+# WeChat Article Writing Helper
 
-## 排版规范
+## Formatting rules
 
-- 正文字号 15-16px，行间距 1.75-2x
-- 正文色 #3f3f3f，强调色 #007AFF
-- 每段 3-5 行，每 300 字配一张图
-- 标题 30 字以内，前 15 字抓眼球
+- Body font 15-16px, line height 1.75-2x
+- Body color #3f3f3f, accent #007AFF
+- 3-5 lines per paragraph, 1 image per 300 chars
+- Title under 30 chars, first 15 chars must catch attention
 '@
 
     "weibo-poster" = @'
 ---
 name: weibo-poster
-description: "微博内容创作 - 140字优化、话题热搜、配图描述、发布时机"
-metadata: { "openclaw": { "emoji": "🔴" } }
+description: "Weibo content creation - 140-char optimization, trending topics, images"
+metadata: { "openclaw": { "emoji": "red" } }
 ---
 
-# 微博内容创作助手
+# Weibo Content Helper
 
-## 140字技巧: 先写后删，一条一观点，金句收尾
-## 配图: 1张突出/3张对比/6张叙述/9张九宫格
-## 发布: 工作日午休+下班后，周末上午+晚上
+## 140-char tips: Write then trim, one point per post, end with golden quote
+## Images: 1 for highlight / 3 for comparison / 6 for narrative / 9 for grid
+## Timing: Weekday lunch + after work, Weekend morning + evening
 '@
 
     "xiaohongshu-writer" = @'
 ---
 name: xiaohongshu-writer
-description: "小红书笔记写作助手 - 标题优化、emoji策略、话题标签、笔记结构"
-metadata: { "openclaw": { "emoji": "📕" } }
+description: "Xiaohongshu note writer - title optimization, emoji strategy, hashtags"
+metadata: { "openclaw": { "emoji": "book" } }
 ---
 
-# 小红书笔记写作助手
+# Xiaohongshu Note Writer
 
-## 标题公式
+## Title formulas
 
-1. 数字法: "5个/10种/100元以内"
-2. 反差法: "月薪3千 vs 月薪3万"
-3. 测评法: "亲测有效！"
-4. 合集法: "XX合集｜一篇搞定"
+1. Numbers: "5 ways / 10 types / under 100 yuan"
+2. Contrast: "3K salary vs 30K salary"
+3. Review: "Personally tested, really works!"
+4. Collection: "XX Collection | All in one post"
 
-## 写作要点: 每段≤3行，emoji每段1-2个，标签3-8个
+## Tips: Max 3 lines per paragraph, 1-2 emoji per paragraph, 3-8 hashtags
 '@
 
     "zhihu-writer" = @'
 ---
 name: zhihu-writer
-description: "知乎回答/文章写作 - 回答结构、专业语气、引用规范"
-metadata: { "openclaw": { "emoji": "📝" } }
+description: "Zhihu answer/article writing - structure, professional tone, citations"
+metadata: { "openclaw": { "emoji": "pen" } }
 ---
 
-# 知乎回答/文章写作助手
+# Zhihu Writing Helper
 
-## 回答结构: 先说结论 → 分点论证 → 总结升华
-## 风格: 自信不傲慢，专业但易懂，有态度但包容
-## 盐值: 500-3000字，原创，回复评论，专注2-3个话题
+## Answer structure: Conclusion first -> Point-by-point -> Summary
+## Style: Confident not arrogant, professional but accessible
+## Quality: 500-3000 chars, original, reply to comments, focus on 2-3 topics
 '@
 }
 
@@ -454,57 +434,57 @@ foreach ($skillName in $skills.Keys) {
     }
 }
 
-Write-Green "  ✓ 中国技能安装完成 (+$skillCount 个)"
+Write-Green "  [OK] China skills installed (+$skillCount)"
 Write-Host ""
 
 # ============================================================
-# Step 6: 交互式模型配置
+# Step 5: Model configuration
 # ============================================================
-Write-Host "  [5/7] 配置 AI 模型 ..." -ForegroundColor White
+Write-Host "  [5/7] Configure AI model ..." -ForegroundColor White
 Write-Host ""
 
 $hasConfig = (Test-Path $CONFIG_PATH) -and (Select-String -Path $CONFIG_PATH -Pattern "apiKey" -Quiet -ErrorAction SilentlyContinue)
 
 if ($hasConfig) {
-    Write-Green "  ✓ 已有模型配置，跳过"
+    Write-Green "  [OK] Model already configured, skip"
 } else {
-    Write-Host "  请选择 AI 模型:" -ForegroundColor White
+    Write-Host "  Select AI model:" -ForegroundColor White
     Write-Host ""
-    Write-Host "  ── 国内推荐（无需翻墙）──" -ForegroundColor White
-    Write-Host "  1) DeepSeek      ⭐ 推荐，性价比最高" -ForegroundColor Green
-    Write-Host "  2) Kimi/月之暗面"
-    Write-Host "  3) 通义千问/阿里"
-    Write-Host "  4) 智谱GLM"
+    Write-Host "  -- China (direct access, no VPN) --" -ForegroundColor White
+    Write-Host "  1) DeepSeek      ** Recommended **" -ForegroundColor Green
+    Write-Host "  2) Kimi (Moonshot)"
+    Write-Host "  3) Qwen (Alibaba)"
+    Write-Host "  4) GLM (Zhipu)"
     Write-Host "  5) MiniMax"
-    Write-Host "  6) 豆包/火山引擎"
-    Write-Host "  7) 硅基流动"
+    Write-Host "  6) Doubao (Volcengine)"
+    Write-Host "  7) SiliconFlow"
     Write-Host ""
-    Write-Host "  ── 海外模型 ──" -ForegroundColor White
+    Write-Host "  -- International --" -ForegroundColor White
     Write-Host "  8) Claude    9) GPT"
     Write-Host ""
-    Write-Host "  ── 本地 ──" -ForegroundColor White
-    Write-Host "  10) Ollama 本地模型"
+    Write-Host "  -- Local --" -ForegroundColor White
+    Write-Host "  10) Ollama (local model)"
     Write-Host ""
 
-    $choice = Read-Host "  请输入编号 [1]"
+    $choice = Read-Host "  Enter number [1]"
     if ([string]::IsNullOrEmpty($choice)) { $choice = "1" }
 
     $modelConfigs = @{
-        "1"  = @{ model="deepseek-chat"; baseUrl="https://api.deepseek.com/v1"; provider="custom"; label="DeepSeek API Key"; hint="获取: https://platform.deepseek.com/api_keys"; needKey=$true }
-        "2"  = @{ model="moonshot-v1-auto"; baseUrl="https://api.moonshot.cn/v1"; provider="custom"; label="Moonshot API Key"; hint="获取: https://platform.moonshot.cn/console/api-keys"; needKey=$true }
-        "3"  = @{ model="qwen-plus"; baseUrl="https://dashscope.aliyuncs.com/compatible-mode/v1"; provider="custom"; label="通义千问 API Key"; hint="获取: https://dashscope.console.aliyun.com/apiKey（有免费额度）"; needKey=$true }
-        "4"  = @{ model="glm-4-plus"; baseUrl="https://open.bigmodel.cn/api/paas/v4"; provider="custom"; label="智谱 API Key"; hint="获取: https://open.bigmodel.cn/usercenter/apikeys"; needKey=$true }
-        "5"  = @{ model="abab6.5s-chat"; baseUrl="https://api.minimax.chat/v1"; provider="custom"; label="MiniMax API Key"; hint="获取: https://platform.minimaxi.com/"; needKey=$true }
-        "6"  = @{ model="doubao-pro-256k"; baseUrl="https://ark.cn-beijing.volces.com/api/v3"; provider="custom"; label="火山引擎 API Key"; hint="获取: https://console.volcengine.com/ark"; needKey=$true }
-        "7"  = @{ model="deepseek-ai/DeepSeek-V3"; baseUrl="https://api.siliconflow.cn/v1"; provider="custom"; label="硅基流动 API Key"; hint="获取: https://cloud.siliconflow.cn/account/ak"; needKey=$true }
-        "8"  = @{ model="claude-sonnet-4-20250514"; baseUrl=""; provider="anthropic"; label="Anthropic API Key"; hint="获取: https://console.anthropic.com/settings/keys（需翻墙）"; needKey=$true }
-        "9"  = @{ model="gpt-4o"; baseUrl=""; provider="openai"; label="OpenAI API Key"; hint="获取: https://platform.openai.com/api-keys（需翻墙）"; needKey=$true }
-        "10" = @{ model="llama3.2"; baseUrl="http://127.0.0.1:11434/v1"; provider="custom"; label=""; hint="先安装 Ollama (https://ollama.com)，运行: ollama run llama3.2"; needKey=$false }
+        "1"  = @{ model="deepseek-chat"; baseUrl="https://api.deepseek.com/v1"; provider="custom"; label="DeepSeek API Key"; hint="Get key: https://platform.deepseek.com/api_keys"; needKey=$true }
+        "2"  = @{ model="moonshot-v1-auto"; baseUrl="https://api.moonshot.cn/v1"; provider="custom"; label="Moonshot API Key"; hint="Get key: https://platform.moonshot.cn/console/api-keys"; needKey=$true }
+        "3"  = @{ model="qwen-plus"; baseUrl="https://dashscope.aliyuncs.com/compatible-mode/v1"; provider="custom"; label="Qwen API Key"; hint="Get key: https://dashscope.console.aliyun.com/apiKey (free quota available)"; needKey=$true }
+        "4"  = @{ model="glm-4-plus"; baseUrl="https://open.bigmodel.cn/api/paas/v4"; provider="custom"; label="Zhipu API Key"; hint="Get key: https://open.bigmodel.cn/usercenter/apikeys"; needKey=$true }
+        "5"  = @{ model="abab6.5s-chat"; baseUrl="https://api.minimax.chat/v1"; provider="custom"; label="MiniMax API Key"; hint="Get key: https://platform.minimaxi.com/"; needKey=$true }
+        "6"  = @{ model="doubao-pro-256k"; baseUrl="https://ark.cn-beijing.volces.com/api/v3"; provider="custom"; label="Volcengine API Key"; hint="Get key: https://console.volcengine.com/ark"; needKey=$true }
+        "7"  = @{ model="deepseek-ai/DeepSeek-V3"; baseUrl="https://api.siliconflow.cn/v1"; provider="custom"; label="SiliconFlow API Key"; hint="Get key: https://cloud.siliconflow.cn/account/ak"; needKey=$true }
+        "8"  = @{ model="claude-sonnet-4-20250514"; baseUrl=""; provider="anthropic"; label="Anthropic API Key"; hint="Get key: https://console.anthropic.com/settings/keys (VPN required)"; needKey=$true }
+        "9"  = @{ model="gpt-4o"; baseUrl=""; provider="openai"; label="OpenAI API Key"; hint="Get key: https://platform.openai.com/api-keys (VPN required)"; needKey=$true }
+        "10" = @{ model="llama3.2"; baseUrl="http://127.0.0.1:11434/v1"; provider="custom"; label=""; hint="Install Ollama first (https://ollama.com), then: ollama run llama3.2"; needKey=$false }
     }
 
     $cfg = $modelConfigs[$choice]
     if (-not $cfg) {
-        Write-Yellow "  未知选项，使用默认 DeepSeek"
+        Write-Yellow "  Unknown option, using DeepSeek"
         $cfg = $modelConfigs["1"]
     }
 
@@ -514,13 +494,13 @@ if ($hasConfig) {
 
     $apiKey = ""
     if ($cfg.needKey) {
-        $apiKey = Read-Host "  请输入 $($cfg.label)"
+        $apiKey = Read-Host "  Enter $($cfg.label)"
         if ([string]::IsNullOrEmpty($apiKey)) {
-            Write-Yellow "  ⚠ 未输入 API Key，稍后可通过 Config.html 配置"
+            Write-Yellow "  [WARN] No API Key entered. You can configure later via Config.html"
         }
     }
 
-    # 写配置
+    # Write config
     if ($cfg.provider -eq "custom" -and $cfg.baseUrl) {
         $configJson = @"
 {
@@ -552,15 +532,15 @@ if ($hasConfig) {
     }
 
     [IO.File]::WriteAllText($CONFIG_PATH, $configJson, (New-Object System.Text.UTF8Encoding $false))
-    Write-Green "  ✓ 模型配置完成: $($cfg.model)"
+    Write-Green "  [OK] Model configured: $($cfg.model)"
 }
 
 Write-Host ""
 
 # ============================================================
-# Step 7: 生成启动脚本 + 验证 + 摘要
+# Step 6: Generate start scripts
 # ============================================================
-Write-Host "  [6/7] 生成启动脚本 ..." -ForegroundColor White
+Write-Host "  [6/7] Generate start scripts ..." -ForegroundColor White
 
 $startBat = @'
 @echo off
@@ -583,7 +563,7 @@ set PORT=18789
 netstat -an | findstr ":%PORT% " | findstr "LISTENING" >nul 2>&1
 if %errorlevel%==0 (
     set /a PORT+=1
-    if !PORT! gtr 18799 (echo 没有可用端口 & pause & exit /b 1)
+    if !PORT! gtr 18799 (echo No available port & pause & exit /b 1)
     goto :check_port
 )
 
@@ -595,111 +575,105 @@ pause
 
 $startBat | Out-File -Encoding ascii "$UCLAW_DIR\start.bat"
 
-Write-Green "  ✓ 启动脚本已生成"
+Write-Green "  [OK] start.bat generated"
 
-# 远程维护脚本（预装，用户需要时一键开启）
+# Remote help script
 $remoteBat = @'
 @echo off
 chcp 65001 >nul 2>&1
-title U-Claw 远程维护
+title U-Claw Remote Help
 echo.
 echo   ==========================================
-echo   U-Claw 远程维护 - 一键开启
+echo   U-Claw Remote Help
 echo   ==========================================
 echo.
-echo   正在启动，请稍候...
+echo   Connecting...
 powershell -ExecutionPolicy Bypass -Command "[Net.ServicePointManager]::SecurityProtocol=[Net.SecurityProtocolType]::Tls12;$ProgressPreference='SilentlyContinue';iwr 'https://u-claw.org/remote.ps1' -OutFile $env:TEMP\uclaw-remote.ps1;$s=gc $env:TEMP\uclaw-remote.ps1 -Raw -Encoding UTF8;iex $s"
 pause
 '@
 [IO.File]::WriteAllText("$UCLAW_DIR\remote-help.bat", $remoteBat, (New-Object System.Text.ASCIIEncoding))
 
-# 一键卸载脚本
+# Uninstall script
 $uninstallBat = @'
 @echo off
 chcp 65001 >nul 2>&1
-title U-Claw 卸载
+title U-Claw Uninstall
 echo.
 echo   ==========================================
-echo   U-Claw 卸载工具
+echo   U-Claw Uninstall
 echo   ==========================================
 echo.
-echo   将删除: %USERPROFILE%\.uclaw
+echo   Will delete: %USERPROFILE%\.uclaw
 echo.
-set /p confirm=  确认卸载？(y/n) [n]:
-if /i not "%confirm%"=="y" (echo   已取消 & pause & exit /b 0)
-echo   正在卸载...
+set /p confirm=  Confirm uninstall? (y/n) [n]:
+if /i not "%confirm%"=="y" (echo   Cancelled. & pause & exit /b 0)
+echo   Uninstalling...
 rmdir /s /q "%USERPROFILE%\.uclaw"
-echo   已卸载完成！
+echo   Done!
 pause
 '@
 [IO.File]::WriteAllText("$UCLAW_DIR\uninstall.bat", $uninstallBat, (New-Object System.Text.ASCIIEncoding))
 
-Write-Green "  ✓ 远程维护 + 卸载工具已生成"
+Write-Green "  [OK] Remote help + uninstall tools generated"
 Write-Host ""
 
 # ============================================================
-# 验证
+# Step 7: Verify
 # ============================================================
-Write-Host "  [7/7] 验证安装 ..." -ForegroundColor White
+Write-Host "  [7/7] Verify installation ..." -ForegroundColor White
 Write-Host ""
 
-# Node.js
 try {
     $nodeVer = & $INSTALL_NODE --version 2>$null
-    Write-Green "  [✓] Node.js $nodeVer"
+    Write-Green "  [OK] Node.js $nodeVer"
 } catch {
-    Write-Red "  [✗] Node.js"
+    Write-Red "  [FAIL] Node.js"
 }
 
-# OpenClaw
 if (Test-Path "$CORE_DIR\node_modules\openclaw\openclaw.mjs") {
-    Write-Green "  [✓] OpenClaw 已安装"
+    Write-Green "  [OK] OpenClaw"
 } else {
-    Write-Red "  [✗] OpenClaw"
+    Write-Red "  [FAIL] OpenClaw"
 }
 
-# QQ 插件
 if (Test-Path "$CORE_DIR\node_modules\@sliverp\qqbot") {
-    Write-Green "  [✓] QQ 插件"
+    Write-Green "  [OK] QQ plugin"
 } else {
-    Write-Yellow "  [⚠] QQ 插件（未安装，不影响主功能）"
+    Write-Yellow "  [WARN] QQ plugin (not required)"
 }
 
-# 技能
 $installedSkills = (Get-ChildItem -Directory $SKILLS_TARGET -ErrorAction SilentlyContinue).Count
-Write-Green "  [✓] 中国技能 (${installedSkills}个)"
+Write-Green "  [OK] China skills ($installedSkills)"
 
-# 配置
 if (Test-Path $CONFIG_PATH) {
-    Write-Green "  [✓] 配置文件"
+    Write-Green "  [OK] Config file"
 } else {
-    Write-Yellow "  [⚠] 配置文件（需启动后配置）"
+    Write-Yellow "  [WARN] Config (configure after first start)"
 }
 
 Write-Host ""
 
 # ============================================================
-# 摘要
+# Summary
 # ============================================================
 $installSize = "{0:N0} MB" -f ((Get-ChildItem -Recurse $UCLAW_DIR -ErrorAction SilentlyContinue | Measure-Object -Property Length -Sum).Sum / 1MB)
 
 Write-Host ""
-Write-Green "  ╔══════════════════════════════════════════╗"
-Write-Green "  ║   ✅ U-Claw 安装成功！                    ║"
-Write-Green "  ╚══════════════════════════════════════════╝"
+Write-Green "  ==========================================="
+Write-Green "    U-Claw installed successfully!"
+Write-Green "  ==========================================="
 Write-Host ""
-Write-Host "  安装位置: $UCLAW_DIR" -ForegroundColor White
-Write-Host "  大小:     $installSize" -ForegroundColor White
+Write-Host "  Location: $UCLAW_DIR" -ForegroundColor White
+Write-Host "  Size:     $installSize" -ForegroundColor White
 Write-Host ""
-Write-Host "  启动方式:" -ForegroundColor White
-Write-Host "    双击 $UCLAW_DIR\start.bat" -ForegroundColor Cyan
+Write-Host "  To start:" -ForegroundColor White
+Write-Host "    Double-click $UCLAW_DIR\start.bat" -ForegroundColor Cyan
 Write-Host ""
-Write-Host "  打开后:" -ForegroundColor White
-Write-Host "    浏览器自动打开 → 开始和 AI 对话" -ForegroundColor White
+Write-Host "  Browser will open automatically -> start chatting with AI" -ForegroundColor White
 Write-Host ""
-Write-Host "  如需重新配置模型，编辑 $CONFIG_PATH" -ForegroundColor DarkGray
-Write-Host "  远程维护: 双击 $UCLAW_DIR\remote-help.bat" -ForegroundColor DarkGray
-Write-Host "  卸载: 双击 $UCLAW_DIR\uninstall.bat" -ForegroundColor DarkGray
+Write-Host "  Reconfigure model: edit $CONFIG_PATH" -ForegroundColor DarkGray
+Write-Host "  Remote help: double-click $UCLAW_DIR\remote-help.bat" -ForegroundColor DarkGray
+Write-Host "  Uninstall: double-click $UCLAW_DIR\uninstall.bat" -ForegroundColor DarkGray
 Write-Host ""
-Write-Host "  按回车关闭..." -ForegroundColor DarkGray
+Write-Host "  Press Enter to close..." -ForegroundColor DarkGray
 Read-Host
