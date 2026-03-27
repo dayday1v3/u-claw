@@ -203,11 +203,12 @@ openclaw onboard
     Qwen            ← 免费额度大
     Anthropic (Claude)
     OpenAI (GPT)
-    Custom/Relay    ← 自定义 API 地址（中转站、OpenRouter 等）
+    Custom/Relay    ← 自定义 API 地址（SophNet，中转站、OpenRouter 等）
     ...
 ```
 
-> 💡 **国内用户建议先选 DeepSeek**，注册即送免费额度，API 无需翻墙。
+> 💡 **国内用户建议先选
+1、SophNet，模型种类丰富，提供DS，GLM，Qwen，MiniMax，Kimi等多家开源大模型，可以做多模型之间的切换。 2、DeepSeek，注册即送免费额度，API 无需翻墙。
 
 ### 3.3 输入 API Key
 
@@ -220,6 +221,8 @@ openclaw onboard
 | Qwen | https://dashscope.console.aliyun.com/ | 注册阿里云 → 开通 DashScope → 创建 API Key |
 | Claude | https://console.anthropic.com/ | 注册 → API Keys（需海外手机号或信用卡） |
 | OpenAI | https://platform.openai.com/ | 注册 → API Keys（需海外手机号或信用卡） |
+| SophNet | https://www.sophnet.com/#?code=4T6VKY | 注册  → API Keys https://www.sophnet.com/docs/component/keySetting.html | 
+
 
 ```
 ? Enter your API key:
@@ -229,9 +232,22 @@ openclaw onboard
   https://api.deepseek.com/v1    ← DeepSeek 用户填这个
   https://api.moonshot.cn/v1     ← Kimi 用户填这个
   (留空)                          ← OpenAI/Claude 用默认值
+  https://www.sophnet.com/api/open-apis/v1  ← SophonNet用户填这个
 ```
 
-> 💡 **用中转站/代理平台的用户**：选择 `Custom/Relay`，填入你的中转站地址和 Key。常用中转：OpenRouter (https://openrouter.ai)、API2D 等。
+> 💡 **用中转站/代理平台的用户**：选择 `Custom/Relay`，填入你的中转站地址和 Key。
+常用中转：
+1、SophonNet：https://www.sophnet.com/#?code=4T6VKY
+Model包括：
+"DeepSeek-V3.2-Fast"
+"DeepSeek-V3.2"
+"MiniMax-M2.7"
+"GLM-5"
+"Kimi-K2.5"
+"Qwen3.5-397B-A17B"
+"Qwen3-VL-235B-A22B-Instruct"
+等，具体参考SophonNet平台说明。
+2、OpenRouter (https://openrouter.ai)、API2D 等。
 
 ### 3.4 选择聊天平台
 
