@@ -26,7 +26,9 @@ U-Claw（虾盘）是一个**制作教程 + 全套源代码**，教你把 [OpenC
 
 > ⚠️ **新手提示：** 本仓库为开源 1.0 版本，构建需要一定的技术基础（Node.js / 命令行 / 脚本）和编程工具，不建议零基础用户贸然下载自行折腾。**想省事的话，推荐直接购买商业版（2.0）**，开箱即用，无需折腾。
 >
-> 🚀 **2.0 商业版** 是全面升级版，包含 U 盘内运行的**本地模型**（离线可用，无需联网 API），更多端侧 AI 能力持续迭代。我们也在搭建**端侧 AI 落地社区**，便携式端侧 AI 还很小众，但这是未来——我们致力于成为便携式端侧 AI 的中国领跑者。欢迎联系交流合作：微信 **hecare888**
+> 🚀 **2.0 商业版** 是全面升级版，包含 U 盘内运行的**本地模型**（离线可用，无需联网 API），更多端侧 AI 能力持续迭代。我们也在搭建**端侧 AI 落地社区**，致力于成为便携式端侧 AI 的中国领跑者。
+>
+> 🔧 **我们同时在推进端侧 AI 硬件开发**，目标是打造真正属于个人的便携式 AI 助理。这个方向还很早期，但商业机会已经在路上——欢迎**技术极客**加入，一起把端侧 AI 和个人助理 AI 做出来。有想法、有技术、想一起把握机会的，欢迎联系：微信 **hecare888**
 
 ---
 
@@ -268,7 +270,9 @@ The codebase itself is the USB file skeleton. Run `setup.sh` to download large d
 
 > ⚠️ **Heads up for beginners:** This repo is the open-source 1.0 version. Building it requires technical knowledge (Node.js / CLI / scripting). If you just want something that works out of the box, **we recommend purchasing the commercial 2.0 edition** instead — no setup hassle.
 >
-> 🚀 **Version 2.0 (commercial)** is a major upgrade featuring **on-device local models** that run entirely inside the USB drive — no internet or API key required. We're also building an **edge AI community** in China. Portable edge AI is still niche, but it's the future — and we're building the leading platform for it. Reach us on WeChat: **hecare888**
+> 🚀 **Version 2.0 (commercial)** is a major upgrade featuring **on-device local models** that run entirely inside the USB drive — no internet or API key required. We're building an edge AI community in China, aiming to be the leading platform for portable edge AI.
+>
+> 🔧 **We're also working on edge AI hardware** — building a truly personal, portable AI assistant device. It's early days, but real commercial opportunities are emerging. We're looking for **tech enthusiasts and hackers** to join us in making edge AI and personal AI assistants a reality. Interested? WeChat: **hecare888**
 
 ---
 
