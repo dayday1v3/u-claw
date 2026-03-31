@@ -24,19 +24,9 @@ U-Claw（虾盘）是一个**制作教程 + 全套源代码**，教你把 [OpenC
 
 ---
 
-> ⚠️ **新手提示：** 本仓库为开源 1.0 版本，构建需要一定的技术基础（Node.js / 命令行 / 脚本）和编程工具，不建议零基础用户贸然下载自行折腾。**想省事的话，推荐直接购买商业版（2.0）**，开箱即用，无需折腾。当然，AI 就像骑自行车，多折腾多用，上手了自然就会了。
+> ⚠️ **新手提示：** 本仓库为开源 1.0 版本，构建需要一定的技术基础（Node.js / 命令行 / 脚本），不建议零基础用户贸然折腾。**想省事的话，推荐直接购买商业版（2.0）**，开箱即用。
 >
-> 🚀 **2.0 商业版** 是全面升级版，包含 U 盘内运行的**本地模型**（离线可用，无需联网 API），更多端侧 AI 能力持续迭代。我们也在搭建**端侧 AI 落地社区**，致力于成为便携式端侧 AI 的中国领跑者。
->
-> 🔧 **我们同时在推进端侧 AI 硬件开发**，目标是打造真正属于个人的便携式 AI 助理。这个方向还很早期，但商业机会已经在路上——欢迎**技术极客**加入，一起把端侧 AI 和个人助理 AI 做出来。有想法、有技术、想一起把握机会的，欢迎联系：微信 **hecare888**
->
-> 💡 **关于这个项目：** 我是产品经理，1个月前借助 AI 协助，针对国内环境打造了 U-Claw 虾盘——全球首个 U 盘形态的 OpenClaw，让 AI 即插即用。目前在快速迭代（也有不少 bug），2.0 正在重构，目标是做成一个真正可用的端侧 AI 产品。
->
-> 🚀 AI 正在爆发，这是一个很少见的窗口期。与其围观，不如一起下场。虾盘只是开始，我们想做下一个真正影响世界的产品——AI 新入口级别的机会，值得 OpenAI、Meta 关注的那种。
->
-> 🤝 **目前人手急缺**，诚邀技术极客和产品极客加入。不需要完美，需要有想法、敢下场、愿意一起把事情做成的人。
->
-> 📩 微信：**hecare888**
+> 🚀 **2.0 商业版** 包含 U 盘内运行的**本地模型**（离线可用，无需 API），正在重构中。我们也在探索端侧 AI 硬件方向，欢迎技术极客一起下场——📩 微信：**hecare888**
 
 ---
 
@@ -232,19 +222,9 @@ The codebase itself is the USB file skeleton. Run `setup.sh` to download large d
 
 ---
 
-> ⚠️ **Heads up for beginners:** This repo is the open-source 1.0 version. Building it requires technical knowledge (Node.js / CLI / scripting). If you just want something that works out of the box, **we recommend purchasing the commercial 2.0 edition** instead — no setup hassle. That said, AI is like riding a bike — tinker with it and it'll click.
+> ⚠️ **Heads up for beginners:** This repo is the open-source 1.0 version. Building it requires technical knowledge (Node.js / CLI / scripting). If you just want something that works, **we recommend the commercial 2.0 edition** — no setup needed.
 >
-> 🚀 **Version 2.0 (commercial)** is a major upgrade featuring **on-device local models** that run entirely inside the USB drive — no internet or API key required. We're building an edge AI community in China, aiming to be the leading platform for portable edge AI.
->
-> 🔧 **We're also working on edge AI hardware** — building a truly personal, portable AI assistant device. It's early days, but real commercial opportunities are emerging. We're looking for **tech enthusiasts and hackers** to join us. Interested? WeChat: **hecare888**
->
-> 💡 **About this project:** I'm a product manager who built U-Claw with AI assistance — the world's first OpenClaw in USB form, purpose-built for China. Still iterating fast (yes, there are bugs). V2.0 is being rebuilt into a truly production-ready edge AI product.
->
-> 🚀 AI is exploding. This is a rare window. Stop watching — come build with us. U-Claw is just the beginning. We're aiming for the next world-changing product — the kind of AI entry point that OpenAI or Meta would take notice of.
->
-> 🤝 **We're urgently looking for builders** — tech hackers and product thinkers who have ideas, move fast, and want to make things happen.
->
-> 📩 WeChat: **hecare888**
+> 🚀 **Version 2.0** features **on-device local models** (offline, no API key needed), currently being rebuilt. We're also exploring edge AI hardware — if you want to build the next AI entry point, come join us. 📩 WeChat: **hecare888**
 
 ---
 
