@@ -27,17 +27,30 @@ bash install/install.sh
 powershell -ExecutionPolicy Bypass -File install\install.ps1
 ```
 
-## 安装流程 (7 步)
+## 安装流程
+
+### Mac / Linux（7 步）
 
 | 步骤 | 内容 | 说明 |
 |------|------|------|
-| 1 | Banner + 系统检测 | 自动识别 OS/Arch |
-| 2 | Node.js v22 | 安装到 `~/.uclaw/runtime/`，系统有 v20+ 则复用 |
-| 3 | OpenClaw | npm 安装到 `~/.uclaw/core/` |
-| 4 | QQ 插件 | 非致命，失败不影响主功能 |
-| 5 | 10 个中国技能 | 小红书、B站、微博等内容创作技能 |
-| 6 | 模型配置 | 中文交互菜单，默认 DeepSeek |
-| 7 | 启动脚本 + 验证 | 生成 start.command / start.bat |
+| 1 | Node.js v22 | 安装到 `~/.uclaw/runtime/`，系统有 v20+ 则复用 |
+| 2 | OpenClaw | npm 安装到 `~/.uclaw/core/` |
+| 3 | QQ 插件 | 非致命，失败不影响主功能 |
+| 4 | 10 个中国技能 | 小红书、B站、微博等内容创作技能 |
+| 5 | 模型配置 | 中文交互菜单，默认 DeepSeek |
+| 6 | 启动脚本 | 生成 start.command (Mac) / start.sh (Linux) |
+| 7 | 验证 | 检查各组件安装状态 |
+
+### Windows（6 步）
+
+| 步骤 | 内容 | 说明 |
+|------|------|------|
+| 1 | Node.js v22 | 下载到 `%USERPROFILE%\.uclaw\runtime\`，系统有 v20+ 则复用 |
+| 2 | OpenClaw + QQ 插件 | 下载预打包 bundle，走国内镜像 |
+| 3 | 10 个中国技能 | 小红书、B站、微博等内容创作技能 |
+| 4 | 模型配置 | 交互菜单，默认 DeepSeek |
+| 5 | 启动脚本 | 生成 start.bat |
+| 6 | 验证 | 检查各组件安装状态 |
 
 ## 支持的 AI 模型
 
@@ -86,7 +99,7 @@ powershell -ExecutionPolicy Bypass -File install\install.ps1
 ## 技术细节
 
 - **Node.js**: 只装到 `~/.uclaw/runtime/`，不动系统 Node；系统已有 v20+ 则复用
-- **镜像**: 全走 `npmmirror.com`（Node 二进制 + npm 包），国内无需翻墙
+- **镜像**: Mac/Linux 全走 `npmmirror.com`（Node 二进制 + npm 包）；Windows bundle 下载依次尝试 ghfast.top → ghproxy.net → gh.idayer.com → 直连，国内无需翻墙
 - **Windows 编码**: `chcp 65001` + UTF8 输出确保中文显示
 - **管道模式**: `curl | bash` 时自动跳过交互，使用默认配置
 - **卸载**: `rm -rf ~/.uclaw` (Mac/Linux) 或删除 `%USERPROFILE%\.uclaw` (Windows)
