@@ -1,4 +1,4 @@
-@echo off
+﻿@echo off
 setlocal EnableDelayedExpansion
 chcp 65001 >nul 2>&1
 title U-Claw - Portable AI Agent
@@ -103,7 +103,7 @@ if "!HAS_MODEL!"=="yes" (
     start /B "" cmd /c "timeout /t 3 /nobreak >nul && start http://127.0.0.1:!PORT!/#token=!TOKEN!"
 ) else (
     echo   First time setup - opening Config page in 3 seconds...
-    start /B "" cmd /c "timeout /t 3 /nobreak >nul && start %UCLAW_DIR%Config.html?port=!PORT!"
+    start /B "" cmd /c "timeout /t 3 /nobreak >nul && start file:///%UCLAW_DIR%Config.html?port=!PORT!"
 )
 
 REM Start gateway (foreground, blocks until stopped)
