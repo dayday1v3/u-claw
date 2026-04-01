@@ -584,7 +584,7 @@ async function launchOpenClaw() {
     const channels = {};
 
     const tgToken = document.getElementById('ch-telegram-token')?.value.trim();
-    if (tgToken) channels.telegram = { enabled: true, botToken: tgToken, dmPolicy: 'pairing' };
+    if (tgToken) channels.telegram = { enabled: true, token: tgToken, dmPolicy: 'pairing' };
 
     const qqId = document.getElementById('ch-qqbot-appid')?.value.trim();
     const qqSecret = document.getElementById('ch-qqbot-secret')?.value.trim();
