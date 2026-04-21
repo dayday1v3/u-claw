@@ -44,23 +44,50 @@ function getNodeBin() {
   return 'node';
 }
 
-// Portable mode: if a `portable/` directory exists next to the .app bundle, use it for data
-function getPortableDataPath() {
+function canWriteDir(dir) {
+  try {
+    fs.mkdirSync(dir, { recursive: true });
+    const testFile = path.join(dir, `.write-test-${process.pid}-${Date.now()}.tmp`);
+    fs.writeFileSync(testFile, 'ok');
+    fs.unlinkSync(testFile);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+// Portable mode:
+// - Windows/Linux: if we can write to `data/` next to the executable, store state there (USB-friendly)
+// - macOS: keep existing behavior (if a `portable/` directory exists next to the .app bundle)
+function getPortableDataRoot() {
+  if (!app.isPackaged) return null;
+
+  // 1) Windows/Linux: prefer exe-adjacent `data/`
+  const exeDir = path.dirname(process.execPath);
+  const exeDataDir = path.join(exeDir, 'data');
+  if (canWriteDir(exeDataDir)) {
+    console.log(`[${APP_NAME}] Portable mode: data in ${exeDataDir}`);
+    return exeDataDir;
+  }
+
+  // 2) macOS legacy: sibling `portable/` directory
   const appPath = app.getAppPath(); // inside .app/Contents/Resources/app
-  // Walk up to the .app's parent directory
   const appBundleDir = path.resolve(appPath, '..', '..', '..', '..');
   const portableDir = path.join(appBundleDir, 'portable');
-  if (fs.existsSync(portableDir)) {
-    console.log(`[${APP_NAME}] Portable mode: data in ${portableDir}`);
-    return portableDir;
+  const macDataDir = path.join(portableDir, 'data');
+  if (fs.existsSync(portableDir) && canWriteDir(macDataDir)) {
+    console.log(`[${APP_NAME}] Portable mode: data in ${macDataDir}`);
+    return macDataDir;
   }
+
   return null;
 }
 
-// User data — portable or default
-const portablePath = app.isPackaged ? getPortableDataPath() : null;
-const userDataPath = portablePath || app.getPath('userData');
-const configDir = path.join(userDataPath, '.openclaw');
+// Data root — portable or default
+const portableDataRoot = getPortableDataRoot();
+const dataRoot = portableDataRoot || app.getPath('userData');
+
+const configDir = path.join(dataRoot, '.openclaw');
 const configPath = path.join(configDir, 'openclaw.json');
 
 // ── State ──
@@ -74,8 +101,8 @@ let configServerPort = null; // mini HTTP server for Config.html
 // ── Config Management ──
 function ensureConfig() {
   fs.mkdirSync(configDir, { recursive: true });
-  fs.mkdirSync(path.join(userDataPath, 'memory'), { recursive: true });
-  fs.mkdirSync(path.join(userDataPath, 'backups'), { recursive: true });
+  fs.mkdirSync(path.join(dataRoot, 'memory'), { recursive: true });
+  fs.mkdirSync(path.join(dataRoot, 'backups'), { recursive: true });
 
   if (!fs.existsSync(configPath)) {
     const defaultConfig = {
@@ -216,7 +243,7 @@ function startGateway(port) {
 
     const env = {
       ...process.env,
-      OPENCLAW_HOME: userDataPath,
+      OPENCLAW_HOME: dataRoot,
       OPENCLAW_STATE_DIR: configDir,
       OPENCLAW_CONFIG_PATH: configPath,
       OPENCLAW_EMBEDDED_IN: APP_NAME,
@@ -368,7 +395,7 @@ function createMenu() {
         { type: 'separator' },
         {
           label: 'Open Data Folder',
-          click: () => shell.openPath(userDataPath)
+          click: () => shell.openPath(dataRoot)
         },
         { type: 'separator' },
         { label: 'Quit', accelerator: 'CmdOrCtrl+Q', click: () => app.quit() }
