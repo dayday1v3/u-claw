@@ -115,8 +115,6 @@ echo   Starting OpenClaw Gateway on port %PORT%...
 echo   Waiting for services to be ready before opening browser...
 start /B "" powershell -NoProfile -ExecutionPolicy Bypass -Command ^
   "$deadline=(Get-Date).AddSeconds(120); while((Get-Date) -lt $deadline){ if(Test-NetConnection 127.0.0.1 -Port 18788 -InformationLevel Quiet){ Start-Process 'http://127.0.0.1:18788/'; break }; Start-Sleep -Milliseconds 300 }"
-start /B "" powershell -NoProfile -ExecutionPolicy Bypass -Command ^
-  "$deadline=(Get-Date).AddSeconds(120); while((Get-Date) -lt $deadline){ if(Test-NetConnection 127.0.0.1 -Port %PORT% -InformationLevel Quiet){ Start-Process 'http://127.0.0.1:%PORT%/#token=uclaw'; break }; Start-Sleep -Milliseconds 300 }"
 echo   DO NOT close this window while using U-Claw!
 echo.
 "%NODE_BIN%" "%OPENCLAW_MJS%" gateway run --allow-unconfigured --force --port %PORT%
