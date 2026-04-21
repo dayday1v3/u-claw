@@ -107,25 +107,16 @@ echo   Starting Config Center on port 18788...
 set "CONFIG_SERVER=%UCLAW_DIR%config-server"
 start /B "" "%NODE_BIN%" "%CONFIG_SERVER%\server.js" >nul 2>&1
 
-REM Wait for config server to start
-timeout /t 2 /nobreak >nul
-
-REM Open both Dashboard and Config Center
-echo   Opening Dashboard and Config Center...
-timeout /t 1 /nobreak >nul
-
-REM Open OpenClaw Dashboard first
-start "" http://127.0.0.1:%PORT%/#token=uclaw
-
-REM Open Config Center (Node.js web UI) second
-start "" http://127.0.0.1:18788/
-
-echo   Browsers opened. Starting OpenClaw Gateway on port %PORT%...
-echo   DO NOT close this window while using U-Claw!
-echo.
-
 cd /d "%CORE_DIR%"
 set "OPENCLAW_MJS=%CORE_DIR%\node_modules\openclaw\openclaw.mjs"
+
+REM Open UI only after ports are actually listening (avoid ERR_CONNECTION_REFUSED)
+echo   Starting OpenClaw Gateway on port %PORT%...
+echo   Waiting for services to be ready before opening browser...
+start /B "" powershell -NoProfile -ExecutionPolicy Bypass -Command ^
+  "$deadline=(Get-Date).AddSeconds(120); while((Get-Date) -lt $deadline){ if(Test-NetConnection 127.0.0.1 -Port 18788 -InformationLevel Quiet){ Start-Process 'http://127.0.0.1:18788/'; break }; Start-Sleep -Milliseconds 300 }"
+echo   DO NOT close this window while using U-Claw!
+echo.
 "%NODE_BIN%" "%OPENCLAW_MJS%" gateway run --allow-unconfigured --force --port %PORT%
 
 echo.

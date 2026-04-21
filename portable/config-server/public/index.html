@@ -113,6 +113,23 @@ input:focus { border-color: #ff6b35; }
 .status-text { flex: 1; font-size: 0.9em; }
 .status-text a { color: #ff6b35; text-decoration: none; }
 
+/* Dashboard embed */
+.dash-panel {
+    background: #111; border: 1px solid #333; border-radius: 12px;
+    overflow: hidden; margin-bottom: 16px;
+}
+.dash-head {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px; padding: 12px 14px; background: #151515; border-bottom: 1px solid #333;
+}
+.dash-head .title { font-weight: 600; color: #eaeaea; font-size: 0.95em; }
+.dash-head .actions { display: flex; gap: 8px; align-items: center; }
+.dash-body { background: #0f0f0f; }
+.dash-body.hidden { display: none; }
+.dash-iframe {
+    width: 100%; height: 72vh; min-height: 560px; border: 0; background: #0f0f0f;
+}
+
 /* Skills section */
 .skills-section { margin-top: 8px; }
 .skill-list { display: flex; flex-direction: column; gap: 8px; }
@@ -131,6 +148,20 @@ input:focus { border-color: #ff6b35; }
     <div class="status-bar">
         <div class="dot" id="statusDot"></div>
         <div class="status-text" id="statusText">检测中...</div>
+    </div>
+
+    <!-- Portal: embedded Dashboard (single-page experience) -->
+    <div class="dash-panel" id="dashPanel">
+        <div class="dash-head">
+            <div class="title">🧭 控制台（Dashboard）</div>
+            <div class="actions">
+                <button class="btn btn-secondary" id="dashToggleBtn" onclick="toggleDashboard()">展开</button>
+                <a class="buy-link" id="dashOpenNew" href="#" target="_blank" style="margin:0;">↗ 新窗口打开</a>
+            </div>
+        </div>
+        <div class="dash-body hidden" id="dashBody">
+            <iframe class="dash-iframe" id="dashFrame" title="OpenClaw Dashboard"></iframe>
+        </div>
     </div>
 
     <!-- Steps -->
@@ -654,7 +685,8 @@ async function saveChannelsAndOpen() {
         } catch(e) {}
     }
 
-    window.open(gatewayUrl(), '_blank');
+    // Single-page UX: open inside embedded Dashboard (fallback to new tab if blocked)
+    openDashboardInPage(true);
 }
 
 // --- View config ---
@@ -698,6 +730,46 @@ function gatewayUrl() {
     return 'http://127.0.0.1:' + p + '/#token=uclaw';
 }
 
+// --- Embedded dashboard ---
+var _dashOpen = false;
+var _dashLoadedUrl = null;
+
+function toggleDashboard(forceOpen) {
+    var body = document.getElementById('dashBody');
+    var btn = document.getElementById('dashToggleBtn');
+    if (forceOpen === true) _dashOpen = true;
+    else if (forceOpen === false) _dashOpen = false;
+    else _dashOpen = !_dashOpen;
+
+    if (_dashOpen) {
+        body.classList.remove('hidden');
+        btn.textContent = '收起';
+        openDashboardInPage(false);
+    } else {
+        body.classList.add('hidden');
+        btn.textContent = '展开';
+    }
+}
+
+function openDashboardInPage(alsoOpenNewTab) {
+    var url = gatewayUrl();
+    var a = document.getElementById('dashOpenNew');
+    a.href = url;
+
+    // Only set iframe src when dashboard is expanded
+    if (!_dashOpen) return;
+
+    var frame = document.getElementById('dashFrame');
+    if (_dashLoadedUrl !== url) {
+        frame.src = url;
+        _dashLoadedUrl = url;
+    }
+
+    if (alsoOpenNewTab) {
+        try { window.open(url, '_blank'); } catch(e) {}
+    }
+}
+
 // --- Check gateway status ---
 async function checkGateway() {
     var dot = document.getElementById('statusDot');
@@ -705,11 +777,13 @@ async function checkGateway() {
     var port = await findGatewayPort();
     if (port) {
         dot.className = 'dot on';
-        text.innerHTML = 'Gateway 运行中 (端口 ' + port + ') · <a href="' + gatewayUrl() + '" target="_blank">打开 Dashboard →</a>';
+        text.innerHTML = 'Gateway 运行中 (端口 ' + port + ') · <a href="#" onclick="toggleDashboard(true);return false;">在本页打开 Dashboard →</a>';
         document.getElementById('gatewayUrl').textContent = 'http://127.0.0.1:' + port;
+        openDashboardInPage(false);
     } else {
         dot.className = 'dot off';
         text.innerHTML = 'Gateway 未启动 · 请先运行 Windows-Start.bat 或 Mac-Start.command';
+        document.getElementById('dashOpenNew').href = '#';
     }
 }
 
